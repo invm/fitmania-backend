@@ -1,6 +1,4 @@
-import { Document } from 'mongoose';
 import BefriendRequest, { IBefriendRequest } from '../models/BefriendRequest';
-import UserDBService from './User';
 
 /**
  *

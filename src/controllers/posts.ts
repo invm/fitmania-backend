@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import mongoose from 'mongoose';
 import Post, { IPost } from '../models/Post';
 import User from '../models/User';
 import UserDBService from '../services/User';
@@ -8,17 +7,12 @@ import EventsDBService from '../services/Events';
 import FriendsDBService from '../services/Friends';
 import { IObject } from '../types/IObject';
 import compress from '../utils/compress';
-import { IEvent } from '../models/Event';
 
 // @desc     Get statistics
 // @route    GET /api/posts/statistics
 // @access   Public
 
-exports.getStatistics = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+exports.getStatistics = async (req: Request, res: Response, next: NextFunction) => {
   let posts: any = await Post.countDocuments();
   let users: any = await User.countDocuments();
   let result = {
@@ -49,7 +43,7 @@ const getPosts = async (req: Request, res: Response, next: NextFunction) => {
 
   if (req.query.sports) {
     sportFilter['event.eventType'] = {
-      $in: typeof req.query.sports === 'string' ? req.query.sports.split(',') : 
+      $in: typeof req.query.sports === 'string' ? req.query.sports.split(',') : req.query.sports,
     };
   }
 
@@ -73,66 +67,37 @@ const getPosts = async (req: Request, res: Response, next: NextFunction) => {
   return { success: true, data: posts };
 };
 
-// exports.getUsersPosts = async (req: any, res: Response, next: NextFunction) => {
-//   let user = await UserDBService.getUserByID(req.params.id);
-//   if (!user) return res.status(404).json({ msg: 'No user found' });
+const getUsersPosts = async (req: Request, res: Response, next: NextFunction) => {
+  const friends = await FriendsDBService.getFriends(req.params.id);
+  const { offset, limit } = req.query;
 
-//   let friends = user.friends;
+  let privateFilter: IObject = {};
 
-//   let privatePosts = [];
+  if (friends.includes(req.user._id.toString())) {
+    privateFilter = {
+      display: 'friends',
+      user: req.params.id,
+    };
+  }
 
-//   if (friends.includes(req.user.toString())) {
-//     let privateFilter = {
-//       display: 'friends',
-//       user: req.params.id,
-//     };
+  let publicFilter = {
+    display: 'all',
+    user: req.params.id,
+  };
 
-//     privatePosts = await Post.find(privateFilter)
-//       .populate('user', 'name lastname avatar')
-//       .populate('event.participants', 'name lastname avatar')
-//       .populate('event.initiator', 'name lastname avatar')
-//       .populate('event.rejectedParticipants', 'name lastname avatar')
-//       .populate('event.awaitingApprovalParticipants', 'name lastname avatar')
-//       .populate('comments.user', 'name lastname _id created_at')
-//       .sort({ created_at: -1 })
-//       .exec();
-//   }
+  let posts = await PostsDBService.getPosts({
+    offset: +offset,
+    limit: +limit,
+    filter: {
+      $and: [{ $or: [privateFilter, publicFilter, { sharedBy: req.params.id }] }],
+    },
+    select: '-__v -updated_at',
+    populate: { author: true, comments: true, event: true },
+    sort: { created_at: -1 },
+  });
 
-//   let publicFilter = {
-//     display: 'all',
-//     user: req.params.id,
-//   };
-
-//   let publicPosts = await Post.find(publicFilter)
-//     .populate('user', 'name lastname avatar')
-//     .populate('event.participants', 'name lastname avatar')
-//     .populate('event.initiator', 'name lastname avatar')
-//     .populate('event.rejectedParticipants', 'name lastname avatar')
-//     .populate('event.awaitingApprovalParticipants', 'name lastname avatar')
-//     .populate('comments.user', 'name lastname _id created_at')
-//     .sort({ created_at: -1 })
-//     .exec();
-
-//   let sorted = [...publicPosts, ...privatePosts]
-//     .filter((item: any) => {
-//       if (
-//         user.posts.includes(item._id.toString()) ||
-//         user.sharedPosts.includes(item._id.toString())
-//       ) {
-//         return false;
-//       }
-//       return true;
-//     })
-//     .sort(
-//       (a: any, b: any) =>
-//         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-//     );
-
-//   const start = req.query.start;
-//   const limit = 10;
-//   let posts = sorted.slice(start, start + limit);
-//   res.status(200).json({ success: true, posts });
-// };
+  return { success: true, data: posts };
+};
 
 // @desc     Get a single post
 // @route    GET /api/posts/:id
@@ -157,12 +122,10 @@ const getPost = async (req: Request, res: Response, next: NextFunction) => {
 
 const createPost = async (req: Request, res: Response, next: NextFunction) => {
   let { text, isEvent, group, display } = req.body;
-  isEvent = isEvent === 'true' ? true : false;
   let postData: IPost = {
     author: req.user._id,
     display: display === 'all' ? 'all' : 'friends',
     text,
-    isEvent,
   };
 
   // TODO: move to validator
@@ -178,17 +141,12 @@ const createPost = async (req: Request, res: Response, next: NextFunction) => {
 
   let post = await PostsDBService.createPost(postData);
 
-  if (isEvent) {
+  if (req.body.event) {
     try {
       const { event } = req.body;
-      const {
-        startDate,
-        eventType,
-        pace,
-        openEvent,
-        location,
-        limitParticipants,
-      } = JSON.parse(event);
+      const { startDate, eventType, pace, openEvent, location, limitParticipants } = JSON.parse(
+        event
+      );
       // TODO: move to validator
       // If not sufficient data to create an event, return error
       if (
@@ -247,425 +205,54 @@ const updatePost = async (req: Request, res: Response, next: NextFunction) => {
 // @access   Private
 
 const deletePost = async (req: Request, res: Response, next: NextFunction) => {
+  let post = await PostsDBService.getPost({ _id: req.params.id });
+  if (post.event) await EventsDBService.deleteEvent(post.event);
   await PostsDBService.deletePost(req.params.id);
 
   return { msg: 'Removed post' };
 };
 
-// // @desc     Gets comment for specific post
-// // @route    GET /api/posts/:id/comments
-// // @access   Public
+// @desc     Share post
+// @route    POST /api/posts/:id
+// @access   Private
 
-// exports.getComments = async (req: any, res: Response, next: NextFunction) => {
-//   const post = await Post.findOne({ _id: req.params.id }).populate(
-//     'comments.user'
-//   );
-//   if (!post) return res.status(404).json({ msg: 'No post found' });
-
-//   res.status(200).json({
-//     data: post.comments,
-//   });
-// };
-
-// // @desc     Creates a comment for specific post
-// // @route    POST /api/posts/:id/comments
-// // @access   Private
-
-// exports.createComment = async (req: any, res: Response, next: NextFunction) => {
-//   if (mongoose.Types.ObjectId.isValid(req.params.id)) {
-//     let post = await Post.findById(req.params.id).populate(
-//       'comments.user',
-//       'name lastname _id'
-//     );
-//     if (!post) return res.status(404).json({ msg: 'No post found' });
-//     let user = await User.findById(req.user);
-//     let newComment = {
-//       _id: mongoose.Types.ObjectId(),
-//       post: req.params.id,
-//       user: user._id,
-//       text: req.body.comment,
-//     };
-//     post.comments.push(newComment);
-//     await post.save();
-
-//     newComment.user = {
-//       name: user.name,
-//       lastname: user.lastname,
-//       _id: user._id,
-//     };
-
-//     let updatedPost = await Post.findById(req.params.id).populate(
-//       'comments.user',
-//       'name lastname _id created_at'
-//     );
-
-//     let comment = updatedPost.comments.find(
-//       (v: any) => v._id.toString() === newComment._id.toString()
-//     );
-
-//     return res
-//       .status(200)
-//       .json({ data: comment, msg: 'Your comment has been added.' });
-//   }
-//   return res.status(404).json({ msg: 'Invalid post ID' });
-// };
-
-// // @desc     Edits a comment for specific post
-// // @route    PUT /api/posts/:id/comments/:commentId
-// // @access   Private
-
-// exports.editComment = async (req: any, res: Response, next: NextFunction) => {
-//   let post = await Post.findById(req.params.id);
-//   if (!post) return res.status(404).json({ msg: 'No post found' });
-//   // Find comment by subdoc id, edit its text and save the document
-//   let comment = post.comments.id(req.body.commentId);
-//   if (!comment) return res.status(404).json({ msg: 'No comment found' });
-//   await comment.set({ ...comment, text: req.body.comment });
-//   await post.save();
-//   post = await Post.findById(req.params.id);
-//   res.status(200).json({
-//     data: post,
-//     success: true,
-//     action: `Edit a comment for post id:${req.params.id}`,
-//   });
-// };
-
-// // @desc     Removes a comment from specific post
-// // @route    DELETE /api/posts/:id/comments
-// // @access   Private
-
-// exports.removeComment = async (req: any, res: Response, next: NextFunction) => {
-//   const post = await Post.findById(req.params.id);
-//   const commentId = req.body.commentId;
-//   let comment = post.comments.id(commentId);
-//   if (!post) return res.status(404).json({ msg: 'No post found' });
-
-//   if (
-//     post.user.toString() !== req.user.toString() &&
-//     post.comments.id(commentId).user.toString() !== req.user.toString()
-//   ) {
-//     // Both the comment and the post does not belong to the user trying to access the action
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are not allowed to remove this comment' });
-//   }
-//   // Two scenarios, let the post owner delete comments and also the comment user
-//   comment = post.comments.id(commentId);
-//   if (!comment) return res.status(404).json({ msg: 'No comment found' });
-//   post.comments.pull({ _id: comment._id });
-//   await post.save();
-//   return res.status(200).json({ msg: 'Comment has been removed.' });
-// };
-
-// // @desc     Delete an event from post
-// // @route    DELETE /api/posts/:id/event
-// // @access   Private
-
-// exports.removeEvent = async (req: any, res: Response, next: NextFunction) => {
-//   const post = await Post.findById(req.params.id);
-//   if (!post) return res.status(404).json({ msg: 'No post found' });
-//   if (post.user._id != req.user)
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are not allowed to remove this event' });
-//   post.isEvent = false;
-//   post.save();
-//   res.status(200).json({ msg: 'Removed an event from the post' });
-// };
-
-// exports.removeFromRejectedList = async (
-//   req: any,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   let post = await Post.findById(req.params.id);
-//   if (!post || !post.isEvent)
-//     return res
-//       .status(404)
-//       .json({ msg: 'No post found or the post is not an event.' });
-//   if (String(post.user._id) !== String(req.user))
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are not allowed to use this function.' });
-//   let { userId, entryId } = req.body;
-//   let isRejected =
-//     post.event.rejectedParticipants.findIndex(
-//       (item: any) => String(item) === userId
-//     ) !== -1;
-//   if (isRejected) {
-//     post.event.rejectedParticipants.pull({ _id: entryId });
-//     post.save();
-//     return res.status(200).json({
-//       msg: 'Removed from rejected list.',
-//     });
-//   }
-// };
-
-// exports.allowAdmitEvent = async (
-//   req: any,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   let post = await Post.findById(req.params.id);
-//   if (!post || !post.isEvent)
-//     return res
-//       .status(404)
-//       .json({ msg: 'No post found or the post is not an event.' });
-//   if (String(post.user._id) !== String(req.user))
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are not allowed to use this function.' });
-//   let { userId, entryId } = req.body;
-//   let isNotRejected =
-//     post.event.rejectedParticipants.findIndex(
-//       (item: any) => item.toString() === userId
-//     ) === -1;
-//   if (!isNotRejected) {
-//     return res.status(400).json({
-//       msg:
-//         'This person has been rejected from that event, first remove him from the rejected list.',
-//     });
-//   }
-//   let user = await User.findById(String(userId));
-//   let participant = user._id;
-//   post.event.participants.push(participant);
-//   post.event.awaitingApprovalParticipants.pull({ _id: entryId });
-//   post.save();
-//   post = await Post.findById(req.params.id);
-//   return res.status(200).json({ msg: 'Participant added', post });
-// };
-
-// exports.rejectAdmitEvent = async (
-//   req: any,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   let post = await Post.findById(req.params.id);
-//   if (!post) return res.status(404).json({ msg: 'No post found' });
-//   if (String(post.user._id) !== String(req.user))
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are not allowed to use this function.' });
-//   let { userId, entryId } = req.body;
-//   let isNotRejected =
-//     post.event.rejectedParticipants.findIndex(
-//       (item: any) => item.toString() === userId
-//     ) === -1;
-//   if (!isNotRejected) {
-//     return res.status(400).json({
-//       msg:
-//         'This person has been rejected from that event, first remove him from the rejected list.',
-//     });
-//   }
-//   let user = await User.findById(req.user);
-//   let participant = {
-//     id: user._id,
-//     avatar: user.avatar,
-//     name: user.name,
-//   };
-//   post.event.rejectedParticipants.push(participant);
-//   post.event.awaitingApprovalParticipants.pull({ _id: entryId });
-//   post.save();
-//   post = await Post.findById(req.params.id);
-//   return res.status(200).json({ msg: 'Participant rejected.', post });
-// };
-
-// exports.askToJoinEvent = async (
-//   req: any,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   let post = await Post.findById(req.params.id);
-//   if (!post) return res.status(404).json({ msg: 'No post found' });
-//   if (post.user._id == req.user)
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are not allowed to use this function.' });
-//   let isNotRejected =
-//     post.event.rejectedParticipants.findIndex(
-//       (item: any) => item.toString() === req.user
-//     ) === -1;
-//   if (!isNotRejected) {
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are forbidden from using this function.' });
-//   } else if (
-//     !post.event.openEvent &&
-//     !post.event.participants.includes(req.user)
-//   ) {
-//     let user = await User.findById(req.user);
-//     let participant = {
-//       id: user._id,
-//       avatar: user.avatar,
-//       name: user.name,
-//     };
-//     post.event.awaitingApprovalParticipants.push(participant);
-//     post.save();
-//     post = await Post.findById(req.params.id);
-//     return res
-//       .status(200)
-//       .json({ msg: "You've asked to join the event", participant });
-//   }
-//   return res.status(418).json({ msg: 'Teapot here' });
-// };
-
-// exports.joinEvent = async (req: any, res: Response, next: NextFunction) => {
-//   let post = await Post.findById(req.params.id);
-//   if (!post) return res.status(404).json({ msg: 'No post found' });
-//   if (post.user._id == req.user)
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are not allowed to use this function.' });
-//   let isNotAwaiting =
-//     post.event.awaitingApprovalParticipants.findIndex(
-//       (item: any) => item.toString() === req.user
-//     ) === -1;
-//   let isNotParticipant =
-//     post.event.participants.findIndex(
-//       (item: any) => item.toString() === req.user
-//     ) === -1;
-//   let isNotRejected =
-//     post.event.rejectedParticipants.findIndex(
-//       (item: any) => item.toString() === req.user
-//     ) === -1;
-//   if (!isNotRejected) {
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are forbidden from using this function.' });
-//   } else if (post.event.openEvent && isNotAwaiting && isNotParticipant) {
-//     let user = await User.findById(req.user);
-//     let participant = {
-//       id: user._id,
-//       avatar: user.avatar,
-//       name: user.name,
-//     };
-//     post.event.participants.push(participant);
-//     post.save();
-//     post = await Post.findById(req.params.id);
-//     return res
-//       .status(200)
-//       .json({ msg: "You've joined the event", participant });
-//   }
-//   return res.status(418).json({ msg: 'Teapot here' });
-// };
-
-// exports.leaveEvent = async (req: any, res: Response, next: NextFunction) => {
-//   let post = await Post.findById(req.params.id);
-//   if (!post) return res.status(404).json({ msg: 'No post found' });
-//   let isParticipant =
-//     post.event.participants.findIndex(
-//       (item: any) => String(item.toString()) === String(req.user)
-//     ) >= 0;
-//   if (post.user._id == req.user)
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are not allowed to use this function.' });
-//   let isNotRejected =
-//     post.event.rejectedParticipants.findIndex(
-//       (item: any) => item.toString() === req.user
-//     ) === -1;
-//   if (!isNotRejected) {
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are forbidden from using this function.' });
-//   } else if (isParticipant) {
-//     const { entryId } = req.body;
-//     post.event.participants.pull({ _id: entryId });
-//     post.save();
-//     post = await Post.findById(req.params.id);
-//     return res.status(200).json({ msg: "You've left the event" });
-//   }
-//   return res.status(418).json({ msg: 'Teapot here' });
-// };
-
-// // @desc     Share post
-// // @route    POST /api/posts/:id
-// // @access   Private
-
-// exports.sharePost = async (req: any, res: Response, next: NextFunction) => {
-//   let user = await User.findById(req.user);
-//   if (!user) return res.status(404).json({ msg: 'No user found' });
-//   let post = await Post.findById(req.params.id);
-//   if (!post || post.user._id === user._id)
-//     return res
-//       .status(400)
-//       .json({ msg: 'No post found or it is your own post.' });
-//   if (!user.sharedPosts.includes(post._id)) {
-//     user.sharedPosts.push(post._id);
-//     user.save();
-//     return res.status(200).json({ msg: 'Success', post });
-//   } else {
-//     return res.status(400).json({ msg: 'Fail' });
-//   }
-// };
+const sharePost = async (req: Request, res: Response, next: NextFunction) => {
+  await PostsDBService.sharePost(req.params.id, req.user._id);
+};
 
 // // @desc     Unshare post
 // // @route    POST /api/posts/:id
 // // @access   Private
 
-// exports.unsharePost = async (req: any, res: Response, next: NextFunction) => {
-//   let user = await User.findById(req.user);
-//   if (!user) return res.status(404).json({ msg: 'No user found' });
-//   let post = await Post.findById(req.params.id);
-//   if (!post || post.user._id === user._id)
-//     return res
-//       .status(400)
-//       .json({ msg: 'No post found or it is your own post.' });
-//   if (user.sharedPosts.includes(post._id)) {
-//     user.sharedPosts.pull(post._id);
-//     user.save();
-//     return res.status(200).json({ msg: 'Success', post: post._id });
-//   } else {
-//     return res.status(400).json({ msg: 'Fail' });
-//   }
-// };
+const unsharePost = async (req: Request, res: Response, next: NextFunction) => {
+  await PostsDBService.unsharePost(req.params.id, req.user._id);
+};
 
 // // @desc     Like post
 // // @route    POST /api/posts/:id/like
 // // @access   Private
 
-// exports.likePost = async (req: any, res: Response, next: NextFunction) => {
-//   let user = await User.findById(req.user);
-//   if (!user) return res.status(404).json({ msg: 'No user found' });
-//   let post = await Post.findById(req.params.id).populate(
-//     'user',
-//     'avatar name lastname _id'
-//   );
-//   if (!post || post.user._id === user._id)
-//     return res
-//       .status(400)
-//       .json({ msg: 'No post found or it is your own post.' });
-//   if (!post.likes.includes(user._id.toString())) {
-//     post.likes.push(user._id);
-//     post.save();
-//     return res.status(200).json({ msg: 'Success', post });
-//   } else {
-//     return res.status(400).json({ msg: 'Already liked' });
-//   }
-// };
+const likePost = async (req: Request, res: Response, next: NextFunction) => {
+  await PostsDBService.likePost(req.params.id, req.user._id);
+};
 
-// // @desc     Dislike post
-// // @route    POST /api/posts/:id/dislike
-// // @access   Private
+// @desc     Dislike post
+// @route    POST /api/posts/:id/dislike
+// @access   Private
 
-// exports.dislikePost = async (req: any, res: Response, next: NextFunction) => {
-//   let user = await User.findById(req.user);
-//   if (!user) return res.status(404).json({ msg: 'No user found' });
-//   let post = await Post.findById(req.params.id).populate(
-//     'user',
-//     'avatar name lastname _id'
-//   );
-//   if (!post || post.user._id === user._id)
-//     return res
-//       .status(400)
-//       .json({ msg: 'No post found or it is your own post.' });
-//   if (post.likes.includes(user._id.toString())) {
-//     post.likes.pull(user._id.toString());
-//     post.save();
-//     return res.status(200).json({ msg: 'Success', post });
-//   } else {
-//     return res.status(400).json({ msg: 'Can not dislike' });
-//   }
-// };
+const dislikePost = async (req: Request, res: Response, next: NextFunction) => {
+  await PostsDBService.unlikePost(req.params.id, req.user._id);
+};
 
-export default { getPosts, getPost, createPost, deletePost, updatePost };
+export default {
+  getPosts,
+  getPost,
+  createPost,
+  deletePost,
+  updatePost,
+  getUsersPosts,
+  sharePost,
+  unsharePost,
+  likePost,
+  dislikePost,
+};

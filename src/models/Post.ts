@@ -7,9 +7,10 @@ export interface IPost {
   display?: 'friends' | 'all';
   group?: string;
   author?: string;
+  sharedBy?: string[];
   text?: string;
   image?: string;
-  event?: IEvent;
+  event?: string;
   comments?: string[];
   likes?: string[];
   created_at?: Date;
@@ -37,6 +38,12 @@ const PostSchema = new Schema(
       ref: 'user',
       required: true,
     },
+    sharedBy: [
+      {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: 'user',
+      },
+    ],
     text: {
       type: String,
       maxLength: 280,

@@ -14,10 +14,7 @@ const chalk = require('chalk');
 const morgan = require('morgan');
 require('./types/Request');
 
-assert.ok(
-  process.env.NODE_ENV,
-  'Error starting up server, environment definitions are missing.'
-);
+assert.ok(process.env.NODE_ENV, 'Error starting up server, environment definitions are missing.');
 
 const app: Application = express();
 app.use(express.json());
@@ -42,9 +39,7 @@ const morganChalk = morgan(function (tokens: any, req: any, res: any) {
     chalk.yellowBright(tokens.method(req, res)),
     chalk.white(tokens.url(req, res)),
     chalk.yellowBright(tokens['response-time'](req, res) + ' ms'),
-    chalk.whiteBright(
-      '\n---------------------------------'
-    ),
+    chalk.whiteBright('\n---------------------------------'),
   ].join(' ');
 });
 // Logger initialization
@@ -99,7 +94,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.use(function (req, res) {
-  res.status(404).json({ msg: 'Not found' });
+  res.status(404).json({ errors: [{ msg: 'Not found' }] });
 });
 
 console.log('--------------------------------\n');

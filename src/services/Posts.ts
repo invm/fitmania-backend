@@ -129,8 +129,44 @@ const updatePost = async (_id: string, params: IPost) => {
   return Post.updateOne({ _id }, { $set: params });
 };
 
+const sharePost = async (_id: string, userId: string) => {
+  return Post.updateOne({ _id }, { $push: { sharedBy: userId } });
+};
+
+const unsharePost = async (_id: string, userId: string) => {
+  return Post.updateOne({ _id }, { $pull: { sharedBy: userId } });
+};
+
+const likePost = async (_id: string, userId: string) => {
+  return Post.updateOne({ _id }, { $push: { likes: userId } });
+};
+
+const unlikePost = async (_id: string, userId: string) => {
+  return Post.updateOne({ _id }, { $pull: { likes: userId } });
+};
+
 const deletePost = async (_id: string) => {
   return Post.deleteOne({ _id });
 };
 
-export default { getPost, getPosts, createPost, updatePost, deletePost };
+const addComment = async (_id: string, commentId: string) => {
+  return Post.updateOne({ _id }, { $push: { comments: commentId } });
+};
+
+const removeComment = async (_id: string, commentId: string) => {
+  return Post.updateOne({ _id }, { $pull: { comments: commentId } });
+};
+
+export default {
+  getPost,
+  getPosts,
+  createPost,
+  updatePost,
+  deletePost,
+  sharePost,
+  unsharePost,
+  likePost,
+  unlikePost,
+  addComment,
+  removeComment
+};
