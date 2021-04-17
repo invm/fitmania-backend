@@ -1,0 +1,92 @@
+FitMania Specifications:
+
+Set preferred activities and undesirable activities, and city and country.
+
+Users should be able to register as username, email, password,
+
+Users should be able to add friends.
+
+Users should be able to publish events and send invitations to friends.
+
+Logged in users will be shown a wall and 
+logged out only either single post if they entered it from shared link or homepage for guests.
+
+The wall will contain posts only from closest 50km range,
+posts by the system with motivational quote or picture.
+
+Live chat that comes from MongoDB and option to clear chat.
+
+Events should include the following options:
+- Show active/ended event.
+- Show date and time for event start.`
+- Show closed/open activity. 
+- Show route - optional (only to participants or if event has ended)
+- Show planned insensitivity.
+- Show desired number of participants - optional.
+- Show the event creator.
+- Show activity type.
+- Show location.
+- (If logged in) Show button section: Clap, Share, Ask to join / Join (if open event), save to user's saved collection.
+
+Users will have their own page that will show their alias, email if they want to share it,
+preferred and undesirable activities, ability level  and posts and events they published,
+ their friends, and add as friend button.
+
+Users will have notifications which will have messages, invites, shared post with the user and mentions in post with '@'.
+
+The notifications will have a 'viewed' property.
+
+The app should cache posts and events and lazy load when users scrolls down.
+
+After every 10 posts, there will be a suggested article based on user preferences.
+
+Let people create groups and teams.
+
+The view will be devided into sections, that wil be accessible through tabs at the top.
+
+Real-time notifications and messages.
+
+The app will contain search option, the search will show results from all aroung the world.
+
+The sections are:
+- Home - will contain the wall
+- Friends and people you may know
+- Groups and teams
+- Notifications
+- Profile - if the user is the page that accessed and authenticated than offer to Log out, show profile, update preferences,
+	else, show info on the user accesed.
+
+Could advertise on social media, ig, fb groups and people that involed in sports.
+
+API:
+
+Will have auth middleware that will check if token is present in request headers, if so, will try to decode the jwt and if decoded,
+than add all decoded data to request.user, if no token in headers or token is expired or not valid, throw error.
+
+The post method to auth route will do the authentication, and all other routes will take the auth middleware.
+
+
+Activities:
+- Running
+- Biking
+
+- Swimming
+- Soccer
+- Basketball
+- Rugby
+- Hiking
+- Tennis
+- Skateboarding
+
+For first group of activities, use origin, destination, time and distance.
+
+Render out the map and the directions in a collapsible div.
+
+
+Post list component will have a filter that filters out the posts by: type:Post|Event, range:All|50km, by:All|Friends. 
+
+Group list component will have a filter that filters out the groups by: sport, range, gender, location, age range.
+
+Friends list component will have a filter that filters out the friends by: sport, range, gender, location, age range.
+
+Generate Terms & conditions, specify that the user is responsible for their safety and we do not check if the user is not allowed by law to use meeting apps.

@@ -1,0 +1,6 @@
+dist/
+node_modules/
+src/media/*
+src/media/*
+src/uncompressed-media/*
+.env

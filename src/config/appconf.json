@@ -1,0 +1,12 @@
+{
+  "server": {
+    "name": "fitmania"
+  },
+  "auth": {
+    "otpTimer": 2,
+    "sessionTimer": 18144000000
+  },
+  "email": {
+    "address": "imichaelionov@gmail.com"
+  }
+}

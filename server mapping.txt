@@ -1,0 +1,68 @@
+users:
+	PUBLIC  POST /users 
+			register user and send token back - Parse with formData for images
+	PRIVATE GET /users?query{geo-location,range} 
+			Get users from specific location by the range
+	PUBLIC  GET /users/:id
+			Get users from specific location by the range
+	PRIVATE PUT /users/:id 
+			update user - Parse with formData for images
+	PRIVATE DELETE /users/:id 
+			delete user, cascade on delete on comments, posts, events, messages and notifications. [OPTIONAL]
+	
+auth:
+	PUBLIC  POST /auth 
+			login user and send token back
+	PRIVATE GET /auth 
+			authenticates users through auth middleware that validate the token in the req.user object
+		
+	auth middleware decoded the token sent and puts a user object on the request with the user id
+		
+posts:
+	PRIVATE POST /posts 
+			post a post - Parse with formData for images
+	PRIVATE POST /posts/:id/event
+			post an event to the post
+	PRIVATE PUT /posts/:id/event
+			add or remove user from the participants array if the event is public, DO NOT LET EDIT EVENT
+	PRIVATE DELETE /posts/:id/event
+			remove event and ask if to remove the post also on the front end
+	PRIVATE GET /posts?query{user,range,postType,postedBy} 
+			retrieves relevant to the user and filters if specified
+	PUBLIC  GET /posts/:id 
+			retrieves a certain post if set to show to all else send 403 and also the event tied to it
+	PRIVATE PUT /posts/:id 
+			updates post info - Parse with formData for images
+	PRIVATE DELETE /posts/:id 
+			deletes the post in params
+	PRIVATE POST /posts/:id/comments 
+			appends a comment to the comments object named with the same id as the post and userId
+	PUBLIC  GET /posts/:id/comments 
+			retrieves comments for a certain post if set to show to all else send 403
+	PRIVATE PUT /posts/:id/comments 
+			updates a comment if the comment is created by the user
+	PRIVATE DELETE /posts/:id/comments 
+		deletes a comment if the comment is created by the user	
+		
+groups:
+	PRIVATE POST /groups 
+			creates a group - Parse with formData for images
+	PRIVATE GET /groups?query{user,sport, range, gender, location, age range}
+			retrieves relevant to the user groups and filters if specified in query
+	PUBLIC  GET /groups/:id
+			retrieves a certain group if set to show to all else send 403
+	PRIVATE PUT /groups/:id
+			update group info if the user is in the groups admins | if group is public add the user | let admins invite
+	PRIVATE DELETE /groups/:id
+			deletes a group if the user if the groups creator
+
+
+comments : {
+	comments:[
+		{
+		userId:ObjectId,
+		text: ""
+		}
+	]
+
+}
