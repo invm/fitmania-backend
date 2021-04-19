@@ -1,19 +1,20 @@
 require('dotenv').config();
-import express, { Application } from 'express';
-const session = require('express-session');
-const helmet = require('helmet');
-const cors = require('cors');
-const passport = require('passport');
-const MongoStore = require('connect-mongo')(session);
-const assert = require('assert');
-const nconf = require('nconf');
-nconf.file({ file: __dirname + '/config/appconf.json' });
-const path = require('path');
-const mongoose = require('./config/db');
-const chalk = require('chalk');
-const morgan = require('morgan');
 require('./types/Request');
-
+import express, { Application, NextFunction, Request, Response } from 'express';
+import { Respond } from './utils/Responder';
+import session from 'express-session';
+const helmet = require('helmet');
+import cors from 'cors';
+import passport from 'passport';
+const MongoStore = require('connect-mongo')(session);
+import assert from 'assert';
+import nconf from 'nconf';
+nconf.file({ file: __dirname + '/config/appconf.json' });
+import path from 'path';
+import mongoose from './config/db';
+import chalk from 'chalk';
+import morgan from 'morgan';
+require('./types/Request');
 assert.ok(process.env.NODE_ENV, 'Error starting up server, environment definitions are missing.');
 
 const app: Application = express();
@@ -45,6 +46,21 @@ const morganChalk = morgan(function (tokens: any, req: any, res: any) {
 // Logger initialization
 app.use(morganChalk);
 
+app.use((req: Request, res: Response, next: NextFunction) => {
+  // req.startTime = new Date().getTime();
+  console.log('----------------------');
+  console.log(
+    `New Request ${
+      req._user
+        ? `by ${req._user?.name ? `${req._user?.name} ${req._user?.lastname} ` : ''}(${
+            req._user._id
+          })`
+        : ''
+    }, Target: ${req.method} - ${req.url}`
+  );
+  next();
+});
+
 // Authentication session setup
 app.use(
   session({
@@ -70,8 +86,8 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 // Passport config
-app.use(passport.initialize({}));
-app.use(passport.session({}));
+app.use(passport.initialize({ userProperty: 'user' }));
+app.use(passport.session({ pauseStream: false }));
 require('./config/passport');
 
 app.use(function (req: any, res: any, next: any) {
@@ -94,7 +110,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.use(function (req, res) {
-  res.status(404).json({ errors: [{ msg: 'Not found' }] });
+  return Respond(req, res, false, { status: 404, msg: 'Not found' });
 });
 
 console.log('--------------------------------\n');

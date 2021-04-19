@@ -14,7 +14,7 @@ auth:
 	PUBLIC  POST /auth 
 			login user and send token back
 	PRIVATE GET /auth 
-			authenticates users through auth middleware that validate the token in the req.user object
+			authenticates users through auth middleware that validate the token in the req._user object
 		
 	auth middleware decoded the token sent and puts a user object on the request with the user id
 		

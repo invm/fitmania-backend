@@ -105,7 +105,7 @@ const logout = async (req: Request, res: Response) => {
 };
 
 const verifyAuth = async (req: Request, res: Response) => {
-  let data = await UserDBService.getUser({ filter: { _id: req.user._id } });
+  let data = await UserDBService.getUser({ filter: { _id: req._user._id } });
 
   // TODO: add users groups
   let user = {
@@ -126,7 +126,7 @@ const getUser = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const updateUser = async (req: Request, res: Response, next: NextFunction) => {
-  if (String(req.params.id) === String(req.user)) {
+  if (String(req.params.id) === String(req._user)) {
     const {
       name,
       email,
@@ -155,7 +155,7 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
             __dirname,
             '../',
             'media',
-            `${req.user}`,
+            `${req._user}`,
             new Date().toISOString() + req.file.originalname
           )
         : '';
@@ -176,11 +176,11 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
     if (Object.keys(updateFields).length > 0) {
       try {
         await UserDBService.updateUser({
-          filter: { _id: req.user._id },
+          filter: { _id: req._user._id },
           params: updateFields,
         });
         let user = await UserDBService.getUser({
-          filter: { _id: req.user._id },
+          filter: { _id: req._user._id },
         });
         return { data: user };
       } catch (error) {

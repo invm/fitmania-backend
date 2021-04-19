@@ -17,7 +17,7 @@ const getComments = async (req: Request) => {
 const createComment = async (req: Request) => {
   let comment = await CommentsDBService.createComment({
     post: req.params.id,
-    user: req.user._id,
+    user: req._user._id,
     text: req.body.text,
   });
 

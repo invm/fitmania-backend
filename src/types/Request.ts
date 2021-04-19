@@ -2,7 +2,9 @@ export {};
 declare global {
   namespace Express {
     interface Request {
-      user: {
+      [key: string]: any;
+      startTime: number;
+      _user: {
         _id: string;
         name: string;
         lastname: string;
@@ -11,12 +13,7 @@ declare global {
       };
       // file?: File; declared in multer
       // files?: { [fieldname: string]: File[] } | File[];
-      isAuthenticated: () => boolean;
-      login: (id: string, cb: (err: Error) => void) => void;
       logout: () => void;
-      session?: {
-        destroy: () => any;
-      };
     }
   }
 }

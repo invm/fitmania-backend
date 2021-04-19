@@ -6,7 +6,7 @@
 // exports.removeEvent = async (req: any, res: Response, next: NextFunction) => {
 //   const post = await Post.findById(req.params.id);
 //   if (!post) return res.status(404).json({ msg: 'No post found' });
-//   if (post.user._id != req.user)
+//   if (post.user._id != req._user)
 //     return res
 //       .status(403)
 //       .json({ msg: 'You are not allowed to remove this event' });
@@ -25,7 +25,7 @@
 //     return res
 //       .status(404)
 //       .json({ msg: 'No post found or the post is not an event.' });
-//   if (String(post.user._id) !== String(req.user))
+//   if (String(post.user._id) !== String(req._user))
 //     return res
 //       .status(403)
 //       .json({ msg: 'You are not allowed to use this function.' });
@@ -53,7 +53,7 @@
 //     return res
 //       .status(404)
 //       .json({ msg: 'No post found or the post is not an event.' });
-//   if (String(post.user._id) !== String(req.user))
+//   if (String(post.user._id) !== String(req._user))
 //     return res
 //       .status(403)
 //       .json({ msg: 'You are not allowed to use this function.' });
@@ -84,7 +84,7 @@
 // ) => {
 //   let post = await Post.findById(req.params.id);
 //   if (!post) return res.status(404).json({ msg: 'No post found' });
-//   if (String(post.user._id) !== String(req.user))
+//   if (String(post.user._id) !== String(req._user))
 //     return res
 //       .status(403)
 //       .json({ msg: 'You are not allowed to use this function.' });
@@ -99,7 +99,7 @@
 //         'This person has been rejected from that event, first remove him from the rejected list.',
 //     });
 //   }
-//   let user = await User.findById(req.user);
+//   let user = await User.findById(req._user);
 //   let participant = {
 //     id: user._id,
 //     avatar: user.avatar,
@@ -119,13 +119,13 @@
 // ) => {
 //   let post = await Post.findById(req.params.id);
 //   if (!post) return res.status(404).json({ msg: 'No post found' });
-//   if (post.user._id == req.user)
+//   if (post.user._id == req._user)
 //     return res
 //       .status(403)
 //       .json({ msg: 'You are not allowed to use this function.' });
 //   let isNotRejected =
 //     post.event.rejectedParticipants.findIndex(
-//       (item: any) => item.toString() === req.user
+//       (item: any) => item.toString() === req._user
 //     ) === -1;
 //   if (!isNotRejected) {
 //     return res
@@ -133,9 +133,9 @@
 //       .json({ msg: 'You are forbidden from using this function.' });
 //   } else if (
 //     !post.event.openEvent &&
-//     !post.event.participants.includes(req.user)
+//     !post.event.participants.includes(req._user)
 //   ) {
-//     let user = await User.findById(req.user);
+//     let user = await User.findById(req._user);
 //     let participant = {
 //       id: user._id,
 //       avatar: user.avatar,
@@ -154,28 +154,28 @@
 // exports.joinEvent = async (req: any, res: Response, next: NextFunction) => {
 //   let post = await Post.findById(req.params.id);
 //   if (!post) return res.status(404).json({ msg: 'No post found' });
-//   if (post.user._id == req.user)
+//   if (post.user._id == req._user)
 //     return res
 //       .status(403)
 //       .json({ msg: 'You are not allowed to use this function.' });
 //   let isNotAwaiting =
 //     post.event.awaitingApprovalParticipants.findIndex(
-//       (item: any) => item.toString() === req.user
+//       (item: any) => item.toString() === req._user
 //     ) === -1;
 //   let isNotParticipant =
 //     post.event.participants.findIndex(
-//       (item: any) => item.toString() === req.user
+//       (item: any) => item.toString() === req._user
 //     ) === -1;
 //   let isNotRejected =
 //     post.event.rejectedParticipants.findIndex(
-//       (item: any) => item.toString() === req.user
+//       (item: any) => item.toString() === req._user
 //     ) === -1;
 //   if (!isNotRejected) {
 //     return res
 //       .status(403)
 //       .json({ msg: 'You are forbidden from using this function.' });
 //   } else if (post.event.openEvent && isNotAwaiting && isNotParticipant) {
-//     let user = await User.findById(req.user);
+//     let user = await User.findById(req._user);
 //     let participant = {
 //       id: user._id,
 //       avatar: user.avatar,
@@ -196,15 +196,15 @@
 //   if (!post) return res.status(404).json({ msg: 'No post found' });
 //   let isParticipant =
 //     post.event.participants.findIndex(
-//       (item: any) => String(item.toString()) === String(req.user)
+//       (item: any) => String(item.toString()) === String(req._user)
 //     ) >= 0;
-//   if (post.user._id == req.user)
+//   if (post.user._id == req._user)
 //     return res
 //       .status(403)
 //       .json({ msg: 'You are not allowed to use this function.' });
 //   let isNotRejected =
 //     post.event.rejectedParticipants.findIndex(
-//       (item: any) => item.toString() === req.user
+//       (item: any) => item.toString() === req._user
 //     ) === -1;
 //   if (!isNotRejected) {
 //     return res
