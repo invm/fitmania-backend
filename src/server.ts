@@ -1,6 +1,5 @@
 require('dotenv').config();
-require('./types/Request');
-import express, { Application, NextFunction, Request, Response } from 'express';
+import express, { Application } from 'express';
 import { Respond } from './utils/Responder';
 import session from 'express-session';
 const helmet = require('helmet');
@@ -14,7 +13,6 @@ import path from 'path';
 import mongoose from './config/db';
 import chalk from 'chalk';
 import morgan from 'morgan';
-require('./types/Request');
 assert.ok(process.env.NODE_ENV, 'Error starting up server, environment definitions are missing.');
 
 const app: Application = express();
@@ -46,15 +44,15 @@ const morganChalk = morgan(function (tokens: any, req: any, res: any) {
 // Logger initialization
 app.use(morganChalk);
 
-app.use((req: Request, res: Response, next: NextFunction) => {
-  // req.startTime = new Date().getTime();
+app.use((req, res, next) => {
+  // @ts-ignore
+  req.startTime = new Date().getTime();
   console.log('----------------------');
+  // @ts-ignore
   console.log(
     `New Request ${
-      req._user
-        ? `by ${req._user?.name ? `${req._user?.name} ${req._user?.lastname} ` : ''}(${
-            req._user._id
-          })`
+      req.user
+        ? `by ${req.user?.name ? `${req.user?.name} ${req.user?.lastname} ` : ''}(${req.user._id})`
         : ''
     }, Target: ${req.method} - ${req.url}`
   );

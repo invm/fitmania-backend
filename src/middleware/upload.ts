@@ -7,7 +7,7 @@ const uploadPath = path.join(__dirname, '../', 'uncompressed-media');
 // Where to store media
 const storage = multer.diskStorage({
   destination: function (req: any, file: any, cb: any) {
-    const userFolder = path.join(__dirname, '../', 'media', `${req._user._id}`);
+    const userFolder = path.join(__dirname, '../', 'media', `${req.user._id}`);
 
     fs.access(userFolder, fs.constants.F_OK | fs.constants.W_OK, (err: any) => {
       if (err && err.code === 'ENOENT') {

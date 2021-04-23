@@ -1,4 +1,10 @@
 import User from '../models/User';
+import { IObject } from '../types/IObject';
+
+const exists = async (_id: string, filters: IObject) => {
+  let result = await User.findOne({ _id, ...filters }).lean();
+  return !!result;
+};
 
 const getUser = async ({
   filter,
@@ -68,4 +74,4 @@ const createUser = async ({
   });
 };
 
-export default { getUser, getUsers, updateUser, createUser };
+export default { exists, getUser, getUsers, updateUser, createUser };

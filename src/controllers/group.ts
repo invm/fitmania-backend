@@ -50,7 +50,7 @@ exports.getFeaturedGroups = async (
   next: NextFunction
 ) => {
   let filter = {};
-  let user = await User.findOne({ _id: req._user });
+  let user = await User.findOne({ _id: req.user });
   if (user.preferable.length > 0)
     filter = {
       sport: {
@@ -99,8 +99,8 @@ exports.createGroup = async (req: any, res: Response, next: NextFunction) => {
   let result = await Group.create({
     title: req.body.title,
     sport: req.body.sport,
-    users: [req._user],
-    admin: req._user,
+    users: [req.user],
+    admin: req.user,
   });
   result = await Group.findOne({ _id: result._id })
     .populate('admin', 'name lastname avatar')
@@ -117,7 +117,7 @@ exports.updateGroup = async (req: any, res: Response, next: NextFunction) => {
     return res.status(400).json({});
   }
   let group = await Group.findOne({ _id: req.params.id });
-  if (!group || group.admin.toString() !== req._user.toString())
+  if (!group || group.admin.toString() !== req.user.toString())
     return res.status(400).json({});
 
   let updateParams: any = {};
@@ -148,7 +148,7 @@ exports.deleteGroup = async (req: any, res: Response, next: NextFunction) => {
     return res.status(400).json({});
   }
   let group = await Group.findOne({ _id: req.params.id });
-  if (!group || group.admin.toString() !== req._user.toString())
+  if (!group || group.admin.toString() !== req.user.toString())
     return res.status(400).json({});
   await Group.deleteOne({ _id: req.params.id });
   return res.status(200).json({});
@@ -163,13 +163,13 @@ exports.joinGroup = async (req: any, res: Response, next: NextFunction) => {
     return res.status(400).json({});
   }
   let group = await Group.findOne({ _id: req.params.id });
-  if (!group || group.users.includes(req._user.toString()))
+  if (!group || group.users.includes(req.user.toString()))
     return res.status(400).json({});
   await Group.updateOne(
     { _id: req.params.id },
     {
       $push: {
-        users: req._user,
+        users: req.user,
       },
     }
   );
@@ -187,15 +187,15 @@ exports.leaveGroup = async (req: any, res: Response, next: NextFunction) => {
   let group = await Group.findOne({ _id: req.params.id });
   if (
     !group ||
-    !group.users.includes(req._user.toString()) ||
-    group.admin.toString() === req._user.toString()
+    !group.users.includes(req.user.toString()) ||
+    group.admin.toString() === req.user.toString()
   )
     return res.status(400).json({});
   await Group.updateOne(
     { _id: req.params.id },
     {
       $pull: {
-        users: req._user.toString(),
+        users: req.user.toString(),
       },
     }
   );

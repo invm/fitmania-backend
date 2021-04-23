@@ -6,8 +6,8 @@ import * as _ from 'lodash';
 interface Err {
   data?: any;
   field?: string;
-  message: any;
-  errorCode: any;
+  msg?: any;
+  errorCode?: any;
 }
 
 interface Res {
@@ -30,8 +30,9 @@ export const Respond = (
     errors?: any[];
   }
 ) => {
-  const time = new Date().getTime();
-  const processTime = time - 0;
+  const time = new Date();
+  // @ts-ignore
+  const processTime = time.getTime() - req.startTime;
   let finalResponse: Res = {};
 
   console.log('----------------------');
@@ -46,7 +47,7 @@ export const Respond = (
 
   /**
    * Returns the response depending on the type of the response:
-   * 1) If a message, data, errorCode or errors are provided, sends them.
+   * 1) If a msg, data, errorCode or errors are provided, sends them.
    * 2) Returns a simple status code if none of the above.
    */
   if (response?.msg || response?.data || response?.errorCode || response?.errors) {
@@ -160,7 +161,7 @@ const verifyValidation = (req: Request, res: Response) => {
 
     let param: string;
     let newParamFlag = true;
-    let message;
+    let msg;
 
     validationErrors.forEach(function (err) {
       if (err.param !== param) {
@@ -168,14 +169,14 @@ const verifyValidation = (req: Request, res: Response) => {
         newParamFlag = true;
       }
 
-      message = err.msg?.message ?? err.msg?.error?.message ?? err.msg;
+      msg = err.msg?.msg ?? err.msg?.error?.msg ?? err.msg;
 
       if (newParamFlag) {
         console.error(`- Param: '${param}' with value of '${err.value}':`);
         newParamFlag = false;
       }
 
-      console.error(`\t - Message: '${message}'`);
+      console.error(`\t - Message: '${msg}'`);
     });
 
     // Unwrapping the App error codes
@@ -183,11 +184,10 @@ const verifyValidation = (req: Request, res: Response) => {
 
     validationErrors.forEach((err) => {
       let error: Err = {
-        message: err.msg.message,
-        errorCode: err.msg.errorCode,
+        msg: err.msg,
       };
-      if (err.msg.data) error.data = err.msg.data;
-      // An error message might not be related to a specific field
+      if (err.value) error.data = err.value;
+      // An error msg might not be related to a specific field
       if (err.param) {
         error.field = err.param;
       }
@@ -201,6 +201,7 @@ const verifyValidation = (req: Request, res: Response) => {
   }
 
   const validatedFields = Object.keys(matchedData(req)); // Get all validated fields from the request
+  // @ts-ignore
   const requestFields = Object.keys(req[getParamType(req)]); // Get all fields from the request
   const unvalidatedFields = _.difference(requestFields, validatedFields); // Find all fields that were in the request that were not validated
 

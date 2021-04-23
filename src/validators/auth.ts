@@ -1,4 +1,5 @@
 import { check } from 'express-validator';
+import { Request } from 'express';
 import UserDBService from '../services/User';
 import Errors from '../config/Errors';
 
@@ -10,7 +11,7 @@ export = {
       .exists()
       .normalizeEmail()
       .isEmail()
-      .withMessage(Errors.A0)
+      .withMessage(Errors.A11)
       .custom(async (email: string) => {
         let user = await UserDBService.getUser({ filter: { email } });
         if (user) {
@@ -33,5 +34,16 @@ export = {
       })
       .withMessage(Errors.A2), // A user with this email does not exist
     check('otp').optional(),
+  ],
+
+  getUser: [
+    check('')
+      .custom(async (_, { req }) => {
+        let user = await UserDBService.getUser({ filter: { _id: req.params.id } });
+        if (!user) {
+          throw new Error();
+        }
+      })
+      .withMessage(Errors.A9), // A user with this email does not exist
   ],
 };

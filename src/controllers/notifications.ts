@@ -11,7 +11,7 @@ exports.getNotifications = async (
 	res: Response,
 	next: NextFunction
 ) => {
-	let list = await Notification.find({ user: req._user })
+	let list = await Notification.find({ user: req.user })
 		.populate("friend", "name lastname avatar")
 		.sort("-created_at")
 		.exec();
@@ -27,7 +27,7 @@ exports.getNotificationsCount = async (
 	res: Response,
 	next: NextFunction
 ) => {
-	let count = await Notification.count({ user: req._user, read: false });
+	let count = await Notification.count({ user: req.user, read: false });
 	return res.status(200).json({ success: true, count });
 };
 // @desc     Get all user notifications

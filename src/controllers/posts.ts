@@ -28,11 +28,11 @@ exports.getStatistics = async (req: Request, res: Response, next: NextFunction) 
 
 const getPosts = async (req: Request, res: Response, next: NextFunction) => {
   const { offset, limit } = req.query;
-  let friends = await FriendsDBService.getFriends(req._user._id);
+  let friends = await FriendsDBService.getFriends(req.user._id);
 
   let privateFilter: IObject = {
     display: 'friends',
-    author: { $in: [...friends, req._user._id] },
+    author: { $in: [...friends, req.user._id] },
   };
 
   let publicFilter: IObject = {
@@ -73,7 +73,7 @@ const getUsersPosts = async (req: Request, res: Response, next: NextFunction) =>
 
   let privateFilter: IObject = {};
 
-  if (friends.includes(req._user._id.toString())) {
+  if (friends.includes(req.user._id.toString())) {
     privateFilter = {
       display: 'friends',
       user: req.params.id,
@@ -123,7 +123,7 @@ const getPost = async (req: Request, res: Response, next: NextFunction) => {
 const createPost = async (req: Request, res: Response, next: NextFunction) => {
   let { text, isEvent, group, display } = req.body;
   let postData: IPost = {
-    author: req._user._id,
+    author: req.user._id,
     display: display === 'all' ? 'all' : 'friends',
     text,
   };
@@ -134,7 +134,7 @@ const createPost = async (req: Request, res: Response, next: NextFunction) => {
     return { errors: [{ msg: 'Please include at least some text or image.' }] };
 
   if (req.file) {
-    postData.image = await compress(req._user._id, req.file);
+    postData.image = await compress(req.user._id, req.file);
   }
 
   if (group) postData.group = group;
@@ -166,8 +166,8 @@ const createPost = async (req: Request, res: Response, next: NextFunction) => {
         openEvent,
         location,
         limitParticipants,
-        initiator: req._user._id,
-        participants: [req._user._id],
+        initiator: req.user._id,
+        participants: [req.user._id],
       });
 
       await PostsDBService.updatePost(post._id, { event: eventDoc._id });
@@ -217,7 +217,7 @@ const deletePost = async (req: Request, res: Response, next: NextFunction) => {
 // @access   Private
 
 const sharePost = async (req: Request, res: Response, next: NextFunction) => {
-  await PostsDBService.sharePost(req.params.id, req._user._id);
+  await PostsDBService.sharePost(req.params.id, req.user._id);
 };
 
 // // @desc     Unshare post
@@ -225,7 +225,7 @@ const sharePost = async (req: Request, res: Response, next: NextFunction) => {
 // // @access   Private
 
 const unsharePost = async (req: Request, res: Response, next: NextFunction) => {
-  await PostsDBService.unsharePost(req.params.id, req._user._id);
+  await PostsDBService.unsharePost(req.params.id, req.user._id);
 };
 
 // // @desc     Like post
@@ -233,7 +233,7 @@ const unsharePost = async (req: Request, res: Response, next: NextFunction) => {
 // // @access   Private
 
 const likePost = async (req: Request, res: Response, next: NextFunction) => {
-  await PostsDBService.likePost(req.params.id, req._user._id);
+  await PostsDBService.likePost(req.params.id, req.user._id);
 };
 
 // @desc     Dislike post
@@ -241,7 +241,7 @@ const likePost = async (req: Request, res: Response, next: NextFunction) => {
 // @access   Private
 
 const dislikePost = async (req: Request, res: Response, next: NextFunction) => {
-  await PostsDBService.unlikePost(req.params.id, req._user._id);
+  await PostsDBService.unlikePost(req.params.id, req.user._id);
 };
 
 export default {

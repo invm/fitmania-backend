@@ -15,13 +15,8 @@ router.post('/logout', isAuthenticated, Responder(Auth.logout));
 
 router.get('/', isAuthenticated, Responder(Auth.verifyAuth));
 
-router.get('/:id', isAuthenticated, Responder(Auth.getUser));
+router.get('/:id', isAuthenticated, Validator.getUser, Responder(Auth.getUser));
 
-router.put(
-  '/:id',
-  isAuthenticated,
-  upload.single('image'),
-  Responder(Auth.updateUser)
-);
+router.put('/:id', isAuthenticated, upload.single('image'), Responder(Auth.updateUser));
 
 module.exports = router;

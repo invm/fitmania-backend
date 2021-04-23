@@ -12,7 +12,7 @@
 //   res: Response,
 //   next: NextFunction
 // ) => {
-//   let user = await User.findById(req._user);
+//   let user = await User.findById(req.user);
 //   let friend = await User.findById(req.params.user);
 //   if (!user || !friend)
 //     return res.status(400).json({ success: false, msg: 'No user found.' });
@@ -44,7 +44,7 @@
 // // @access   Private
 
 // exports.removeFriend = async (req: any, res: Response, next: NextFunction) => {
-//   let user = await User.findById(req._user);
+//   let user = await User.findById(req.user);
 //   let friend = await User.findById(req.params.user);
 //   if (!user || !friend)
 //     return res.status(400).json({ success: false, msg: 'No user found.' });
@@ -73,7 +73,7 @@
 //   res: Response,
 //   next: NextFunction
 // ) => {
-//   let user = await User.findById(req._user);
+//   let user = await User.findById(req.user);
 //   let friend = await User.findById(req.params.user);
 //   if (!user || !friend)
 //     return res.status(400).json({ success: false, msg: 'No user found.' });
@@ -85,7 +85,7 @@
 //     });
 
 //   await User.updateOne(
-//     { _id: req._user },
+//     { _id: req.user },
 //     {
 //       $pull: {
 //         awaitingFriendRequest: friend._id,
@@ -118,7 +118,7 @@
 // // @access   Private
 
 // exports.acceptRequest = async (req: any, res: Response, next: NextFunction) => {
-//   let user = await User.findById(req._user);
+//   let user = await User.findById(req.user);
 //   let friend = await User.findById(req.params.user);
 //   if (!user || !friend)
 //     return res.status(400).json({ success: false, msg: 'No user found.' });
@@ -157,7 +157,7 @@
 // exports.search = async (req: any, res: Response, next: NextFunction) => {
 //   let query = req.query.q;
 //   if (!query) return res.status(200).json({ success: true });
-//   let user = await User.findById(req._user);
+//   let user = await User.findById(req.user);
 //   let users = await User.find({
 //     $and: [
 //       {
@@ -199,7 +199,7 @@
 //   res: Response,
 //   next: NextFunction
 // ) => {
-//   let user = await User.findById(req._user);
+//   let user = await User.findById(req.user);
 //   let users = await User.find({
 //     $and: [
 //       {

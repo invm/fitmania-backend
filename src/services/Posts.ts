@@ -1,7 +1,15 @@
 import Post, { IPost } from '../models/Post';
 import '../models/Comment';
+import { IObject } from '../types/IObject';
 
 let userSelect = 'name lastname avatar';
+
+const exists = async (_id: string, filters: IObject) => {
+  let result = await Post.findOne({ _id, ...filters }).lean();
+  console.log('resut', result);
+  
+  return !!result;
+};
 
 /**
  *
@@ -87,13 +95,13 @@ const getPost = async ({
 
   if (select) query.select(select);
 
-  if (populate.comments)
+  if (populate?.comments)
     query.populate({
       path: 'comments.user',
       select: (userSelect += ' _id created_at'),
     });
 
-  if (populate.event)
+  if (populate?.event)
     query.populate({
       path: 'event',
       populate: [
@@ -116,7 +124,7 @@ const getPost = async ({
       ],
     });
 
-  if (populate.author) query.populate({ path: 'author', select: userSelect });
+  if (populate?.author) query.populate({ path: 'author', select: userSelect });
 
   return query;
 };
@@ -158,6 +166,7 @@ const removeComment = async (_id: string, commentId: string) => {
 };
 
 export default {
+  exists,
   getPost,
   getPosts,
   createPost,
@@ -168,5 +177,5 @@ export default {
   likePost,
   unlikePost,
   addComment,
-  removeComment
+  removeComment,
 };

@@ -4,6 +4,7 @@ import PostController from '../controllers/posts';
 import CommentController from '../controllers/comments';
 import { upload } from '../middleware';
 import Responder from '../utils/Responder';
+import Validator from '../validators/posts';
 
 // router.get('/statistics', getStatistics);
 // router.post('/:id/event/remove-from-rejected', removeFromRejectedList);
@@ -22,11 +23,11 @@ router.patch('/:id/comments/:commentId', Responder(CommentController.editComment
 
 router.delete('/:id/comments/:commentId', Responder(CommentController.removeComment));
 
-router.get('/user/:id', Responder(PostController.getUsersPosts));
+router.get('/user/:id', Validator.getUsersPosts, Responder(PostController.getUsersPosts));
 
-router.get('/', Responder(PostController.getPosts)); // TODO: add validator of offset and limit
+router.get('/', Validator.getPosts, Responder(PostController.getPosts));
 
-router.get('/:id', Responder(PostController.getPost)); // TODO: add validator of id
+router.get('/:id', Validator.getPost, Responder(PostController.getPost));
 
 router.delete('/:id', Responder(PostController.deletePost)); // TODO: add validator of id
 

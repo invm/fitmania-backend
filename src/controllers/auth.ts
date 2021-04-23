@@ -35,12 +35,9 @@ const sendOTP = async (req: Request, res: Response) => {
   await UserDBService.updateUser({ filter: { email }, params });
 
   // Used to prevent unwanted usage of email for testing purposes. Instead, we only log the password.
-  if (process.env.CHEAPSKATE_MODE !== 'on')
-    await emailServices.sendOTP(email, `${token}`);
+  if (process.env.CHEAPSKATE_MODE !== 'on') await emailServices.sendOTP(email, `${token}`);
   else {
-    console.log(
-      `Cheapskate mode is on, the generated OTP for authentication is: ${token}`
-    );
+    console.log(`Cheapskate mode is on, the generated OTP for authentication is: ${token}`);
   }
 
   return {
@@ -87,12 +84,9 @@ const register = async (req: Request, res: Response) => {
   await UserDBService.updateUser({ filter: { _id: user._id }, params });
 
   // Used to prevent unwanted usage of email for testing purposes. Instead, we only log the password.
-  if (process.env.CHEAPSKATE_MODE !== 'on')
-    await emailServices.sendOTP(email, `${token}`);
+  if (process.env.CHEAPSKATE_MODE !== 'on') await emailServices.sendOTP(email, `${token}`);
   else {
-    console.log(
-      `Cheapskate mode is on, the generated OTP for authentication is: ${token}`
-    );
+    console.log(`Cheapskate mode is on, the generated OTP for authentication is: ${token}`);
   }
   return {
     msg: 'Your one-time-password was sent to your specified email',
@@ -100,12 +94,12 @@ const register = async (req: Request, res: Response) => {
 };
 
 const logout = async (req: Request, res: Response) => {
-  req.session.destroy(); // removes the session from the DB
+  req.session.destroy(() => {}); // removes the session from the DB
   req.logout(); // logs the user out
 };
 
 const verifyAuth = async (req: Request, res: Response) => {
-  let data = await UserDBService.getUser({ filter: { _id: req._user._id } });
+  let data = await UserDBService.getUser({ filter: { _id: req.user._id } });
 
   // TODO: add users groups
   let user = {
@@ -114,29 +108,17 @@ const verifyAuth = async (req: Request, res: Response) => {
   };
 
   return { data: user };
-};
+}; 
 
 const getUser = async (req: Request, res: Response, next: NextFunction) => {
   let user = await UserDBService.getUser({ filter: { _id: req.params.id } });
-  // TODO: move the check to a validator
-  if (!user) return { msg: 'No user found' };
-
   // TODO: add posts
   return { data: { posts: [''], user } };
 };
 
 const updateUser = async (req: Request, res: Response, next: NextFunction) => {
-  if (String(req.params.id) === String(req._user)) {
-    const {
-      name,
-      email,
-      preferable,
-      undesirable,
-      birthday,
-      location,
-      lastname,
-      image,
-    } = req.body;
+  if (String(req.params.id) === String(req.user?._id)) {
+    const { name, email, preferable, undesirable, birthday, location, lastname, image } = req.body;
 
     const updateFields: any = {};
     if (name) updateFields.name = name;
@@ -155,7 +137,7 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
             __dirname,
             '../',
             'media',
-            `${req._user}`,
+            `${req.user}`,
             new Date().toISOString() + req.file.originalname
           )
         : '';
@@ -176,11 +158,11 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
     if (Object.keys(updateFields).length > 0) {
       try {
         await UserDBService.updateUser({
-          filter: { _id: req._user._id },
+          filter: { _id: req.user?._id },
           params: updateFields,
         });
         let user = await UserDBService.getUser({
-          filter: { _id: req._user._id },
+          filter: { _id: req.user?._id },
         });
         return { data: user };
       } catch (error) {

@@ -65,6 +65,6 @@
     "resolveJsonModule": true,
     "skipLibCheck": true
   },
-  "files": ["src/types/Request.ts"],
-  "exclude": ["node_modules/", "dist/", "src/utils/seed/"]
+  "exclude": ["./node_modules/", "./dist/", "./src/utils/seed/"],
+  "typeRoots": ["./node_modules/@types", "./types"]
 }
