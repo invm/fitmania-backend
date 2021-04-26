@@ -29,18 +29,28 @@ router.get('/', Validator.getPosts, Responder(PostController.getPosts));
 
 router.get('/:id', Validator.getPost, Responder(PostController.getPost));
 
-router.delete('/:id', Responder(PostController.deletePost)); // TODO: add validator of id
+router.delete('/:id', Validator.deletePost, Responder(PostController.deletePost)); // TODO: add validator of id
 
-router.post('/', upload.single('postImage'), Responder(PostController.createPost)); // TODO: add validator of all field needed
+router.post(
+  '/',
+  upload.single('postImage'),
+  Validator.createPost,
+  Responder(PostController.createPost)
+);
 
-router.put('/:id', upload.single('postImage'), Responder(PostController.updatePost)); // TODO: add validator of id and of all field needed
+router.put(
+  '/:id',
+  upload.single('postImage'),
+  Validator.updatePost,
+  Responder(PostController.updatePost)
+); // TODO: add validator of id and of all field needed
 
-router.post('/:id/share', Responder(PostController.sharePost)); // TODO: add validator to see that the user is not the author and that has not been shared
+router.post('/:id/share', Validator.sharePost, Responder(PostController.sharePost)); // TODO: add validator to see that the user is not the author and that has not been shared
 
-router.post('/:id/unshare', Responder(PostController.unsharePost)); // TODO: add validator to see that the user is not the author and that the post was in fact shared by the user
+router.post('/:id/unshare', Validator.unsharePost, Responder(PostController.unsharePost)); // TODO: add validator to see that the user is not the author and that the post was in fact shared by the user
 
-router.post('/:id/like', Responder(PostController.likePost)); // TODO: add validator to see that the user is not the author and that has not been liked
+router.post('/:id/like', Validator.likePost, Responder(PostController.likePost)); // TODO: add validator to see that the user is not the author and that has not been liked
 
-router.post('/:id/dislike', Responder(PostController.dislikePost)); // TODO: add validator to see that the user is not the author and that the post was in fact liked by the user
+router.post('/:id/dislike', Validator.dislikePost, Responder(PostController.dislikePost)); // TODO: add validator to see that the user is not the author and that the post was in fact liked by the user
 
 module.exports = router;

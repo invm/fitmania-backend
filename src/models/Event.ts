@@ -1,28 +1,24 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const pointSchema = new mongoose.Schema({
-  type: {
-    type: String,
-    enum: ['Point'],
-    required: true,
+const pointSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      enum: ['Point'],
+      required: true,
+    },
+    coordinates: {
+      type: [Number], // Note that longitude comes first in a GeoJSON coordinate array, not latitude.
+      required: true,
+    },
   },
-  coordinates: {
-    type: [Number], // Note that longitude comes first in a GeoJSON coordinate array, not latitude.
-    required: true,
-  },
-});
+  { _id: false }
+);
 
 export interface IEvent {
   startDate?: Date;
-  eventType?:
-    | 'Running'
-    | 'Biking'
-    | 'Soccer'
-    | 'Basketball'
-    | 'Rugby'
-    | 'Hiking'
-    | 'Tennis';
+  eventType?: 'Running' | 'Biking' | 'Soccer' | 'Basketball' | 'Rugby' | 'Hiking' | 'Tennis';
   initiator?: string;
   participants?: string[];
   limitParticipants?: number;
@@ -41,15 +37,7 @@ const EventSchema = new Schema(
     startDate: { type: Date, required: true },
     eventType: {
       type: String,
-      enum: [
-        'Running',
-        'Biking',
-        'Soccer',
-        'Basketball',
-        'Rugby',
-        'Hiking',
-        'Tennis',
-      ],
+      enum: ['Running', 'Biking', 'Soccer', 'Basketball', 'Rugby', 'Hiking', 'Tennis'],
       default: 'Running',
     },
     initiator: {
@@ -67,8 +55,8 @@ const EventSchema = new Schema(
       type: pointSchema,
       required: true,
     },
-    limitParticipants: Number,
-    pace: String,
+    limitParticipants: { type: Number, required: true },
+    pace: { type: String, required: true },
     openEvent: { type: Boolean, required: true, default: true },
     rejectedParticipants: [
       {

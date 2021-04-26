@@ -139,7 +139,7 @@ const getParamType = (req: Request): string => {
 const verifyValidation = (req: Request, res: Response) => {
   const errors = validationResult(req);
   const hasValidationErrors = !errors.isEmpty();
-  const validationErrors = errors.array();
+  const validationErrors = errors.array().map((v) => ({ ...v, value: JSON.stringify(v.value) }));;
 
   if (
     (req.method === 'GET' && Object.keys(req.body).length > 0) ||

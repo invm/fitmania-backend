@@ -19,7 +19,7 @@ exports.getStatistics = async (req: Request, res: Response, next: NextFunction) 
     posts: posts,
     users: users,
   };
-  return { result };
+  return { data: result };
 };
 
 // @desc     Get all posts
@@ -49,8 +49,8 @@ const getPosts = async (req: Request, res: Response, next: NextFunction) => {
 
   let eventFilter: IObject = {};
 
-  if (req.query?.isEvent !== undefined) {
-    eventFilter.isEvent = !!+req.query.isEvent;
+  if (req.query?.isEvent) {
+    eventFilter.event = { $exists: !!+req.query?.isEvent };
   }
 
   let posts = await PostsDBService.getPosts({
@@ -64,7 +64,7 @@ const getPosts = async (req: Request, res: Response, next: NextFunction) => {
     sort: { created_at: -1 },
   });
 
-  return { success: true, data: posts };
+  return { data: posts };
 };
 
 const getUsersPosts = async (req: Request, res: Response, next: NextFunction) => {
@@ -96,22 +96,23 @@ const getUsersPosts = async (req: Request, res: Response, next: NextFunction) =>
     sort: { created_at: -1 },
   });
 
-  return { success: true, data: posts };
+  return { data: posts };
 };
 
 // @desc     Get a single post
 // @route    GET /api/posts/:id
 // @access   Private
 
-// TODO: add validator to check the id of the post and check if it exists before getting to this function
-// if (mongoose.Types.ObjectId.isValid(req.params.id)) {
-
 const getPost = async (req: Request, res: Response, next: NextFunction) => {
-  let post = await PostsDBService.getPost({
-    _id: req.params.id,
-    select: '-__v -updated_at',
-    populate: { author: true, comments: true, event: true },
-  });
+  let post = await PostsDBService.getPost(
+    {
+      _id: req.params.id,
+    },
+    {
+      select: '-__v -updated_at',
+      populate: { author: true, comments: true, event: true },
+    }
+  );
 
   return { data: post };
 };
@@ -124,14 +125,9 @@ const createPost = async (req: Request, res: Response, next: NextFunction) => {
   let { text, isEvent, group, display } = req.body;
   let postData: IPost = {
     author: req.user._id,
-    display: display === 'all' ? 'all' : 'friends',
+    display,
     text,
   };
-
-  // TODO: move to validator
-  // Not sufficient data to create a post
-  if (!text && !req.file)
-    return { errors: [{ msg: 'Please include at least some text or image.' }] };
 
   if (req.file) {
     postData.image = await compress(req.user._id, req.file);
@@ -144,43 +140,33 @@ const createPost = async (req: Request, res: Response, next: NextFunction) => {
   if (req.body.event) {
     try {
       const { event } = req.body;
-      const { startDate, eventType, pace, openEvent, location, limitParticipants } = JSON.parse(
-        event
-      );
-      // TODO: move to validator
-      // If not sufficient data to create an event, return error
-      if (
-        !startDate ||
-        !eventType ||
-        !pace ||
-        !location.type ||
-        !location.coordinates ||
-        !limitParticipants
-      )
-        return { errors: [{ msg: 'Please include all needed data.' }] };
+      const {
+        location: { coordinates },
+      } = event;
 
       let eventDoc = await EventsDBService.createEvent({
-        startDate,
-        eventType,
-        pace,
-        openEvent,
-        location,
-        limitParticipants,
+        ...event,
+        location: { type: 'Point', coordinates },
         initiator: req.user._id,
         participants: [req.user._id],
       });
 
       await PostsDBService.updatePost(post._id, { event: eventDoc._id });
-      post = await PostsDBService.getPost({
-        _id: post._id,
-        select: '-__v -updated_at',
-        populate: { author: true, comments: true, event: true },
-      });
+      post = await PostsDBService.getPost(
+        {
+          _id: post._id,
+        },
+        {
+          select: '-__v -updated_at',
+          populate: { author: true, comments: true, event: true },
+        }
+      );
       return { data: post };
     } catch (error) {
       return { errors: [{ msg: error?.message }] };
     }
   }
+  return { data: post };
 };
 
 // @desc     Update post
@@ -193,11 +179,17 @@ const updatePost = async (req: Request, res: Response, next: NextFunction) => {
   if (Object.keys(updateFields).length > 0) {
     await PostsDBService.updatePost(req.params.id, updateFields);
   }
-  return await PostsDBService.getPost({
-    _id: req.params.id,
-    select: '-__v -updated_at',
-    populate: { author: true, comments: true, event: true },
-  });
+  return {
+    data: await PostsDBService.getPost(
+      {
+        _id: req.params.id,
+      },
+      {
+        select: '-__v -updated_at',
+        populate: { author: true, comments: true, event: true },
+      }
+    ),
+  };
 };
 
 // @desc     Delete post

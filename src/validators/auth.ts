@@ -32,7 +32,7 @@ export = {
           throw new Error();
         }
       })
-      .withMessage(Errors.A2), // A user with this email does not exist
+      .withMessage(Errors.A2),
     check('otp').optional(),
   ],
 
@@ -44,6 +44,6 @@ export = {
           throw new Error();
         }
       })
-      .withMessage(Errors.A9), // A user with this email does not exist
+      .withMessage(Errors.A9),
   ],
 };

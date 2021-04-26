@@ -9,10 +9,18 @@ const errors = {
   A7: 'OTP is incorrect.',
   A8: 'Successfully logged in.',
   A9: 'The requested entity with the provided id does not exists.',
-  A10: 'Invalid id',
+  A10: 'Invalid id.',
   A11: 'Email is required.',
   A12: 'Entity does not exists.',
   A13: 'Id is required.',
+  A14: 'You do not appear to be the author of this post.',
+  A15: 'Can not create empty posts.',
+  A16: 'Missing data.',
+  A17: 'Already liked',
+  A18: 'Can not dislike',
+  A19: 'Already shared',
+  A20: 'Can not unshare',
+ 
 };
 
 export default errors;

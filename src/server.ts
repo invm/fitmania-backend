@@ -111,8 +111,6 @@ app.use(function (req, res) {
   return Respond(req, res, false, { status: 404, msg: 'Not found' });
 });
 
-console.log('--------------------------------\n');
 app.listen(process.env.PORT, () => {
   console.log(`Listening on ${process.env.PORT}`);
-  console.log('--------------------------------\n');
 });

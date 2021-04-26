@@ -7,7 +7,7 @@ let userSelect = 'name lastname avatar';
 const exists = async (_id: string, filters: IObject) => {
   let result = await Post.findOne({ _id, ...filters }).lean();
   console.log('resut', result);
-  
+
   return !!result;
 };
 
@@ -78,30 +78,28 @@ const getPosts = async ({
   return query;
 };
 
-const getPost = async ({
-  _id,
-  select,
-  populate,
-}: {
-  _id: string;
-  select?: {} | string;
-  populate?: {
-    author?: boolean;
-    comments?: boolean;
-    event?: boolean;
-  };
-}) => {
-  let query = Post.findOne({ _id });
+const getPost = async (
+  filter: IObject,
+  options?: {
+    select?: {} | string;
+    populate?: {
+      author?: boolean;
+      comments?: boolean;
+      event?: boolean;
+    };
+  }
+) => {
+  let query = Post.findOne(filter);
 
-  if (select) query.select(select);
+  if (options?.select) query.select(options?.select);
 
-  if (populate?.comments)
+  if (options?.populate?.comments)
     query.populate({
       path: 'comments.user',
       select: (userSelect += ' _id created_at'),
     });
 
-  if (populate?.event)
+  if (options?.populate?.event)
     query.populate({
       path: 'event',
       populate: [
@@ -124,7 +122,7 @@ const getPost = async ({
       ],
     });
 
-  if (populate?.author) query.populate({ path: 'author', select: userSelect });
+  if (options?.populate?.author) query.populate({ path: 'author', select: userSelect });
 
   return query;
 };
@@ -165,6 +163,14 @@ const removeComment = async (_id: string, commentId: string) => {
   return Post.updateOne({ _id }, { $pull: { comments: commentId } });
 };
 
+const checkIfShared = async (_id: string, userId: string) => {
+  return Post.findOne({ _id, sharedBy: userId });
+};
+
+const checkIfLiked = async (_id: string, userId: string) => {
+  return Post.findOne({ _id, likes: userId });
+};
+
 export default {
   exists,
   getPost,
@@ -178,4 +184,6 @@ export default {
   unlikePost,
   addComment,
   removeComment,
+  checkIfShared,
+  checkIfLiked,
 };

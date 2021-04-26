@@ -10,6 +10,18 @@ const paginationQuery = [
   check('limit').exists().withMessage(Errors.A4).bail(),
 ];
 
+const postOwner = async (postId: string, userId: string) => {
+  return !!(await PostDBService.getPost({ _id: postId, author: userId }));
+};
+
+const checkIfLiked = async (_id: string, userId: string) => {
+  return !(await PostDBService.checkIfLiked(_id, userId));
+};
+
+const checkIfShared = async (_id: string, userId: string) => {
+  return !(await PostDBService.checkIfShared(_id, userId));
+};
+
 const entityExists = (
   entity: string,
   { filter, fieldName, required }: { filter?: IObject; fieldName?: string; required?: boolean }
@@ -36,7 +48,7 @@ const entityExists = (
 
       if (!exists) {
         throw new Error();
-      } 
+      }
     })
     .withMessage(Errors.A12); // The ID must belong to an existing entity
 
@@ -49,4 +61,4 @@ const entityExists = (
   return validator;
 };
 
-export { paginationQuery, entityExists };
+export { paginationQuery, entityExists, postOwner, checkIfShared, checkIfLiked };

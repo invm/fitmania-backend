@@ -3,4 +3,6 @@ const ENTITIES = {
   user: 'user',
 };
 
+export const displayEnum = ['all', 'friends'];
+
 export default ENTITIES;
