@@ -2,20 +2,10 @@ import Post, { IPost } from '../models/Post';
 import '../models/Comment';
 import { IObject } from '../types/IObject';
 
-let userSelect = 'name lastname avatar';
-
 const exists = async (_id: string, filters: IObject) => {
   let result = await Post.findOne({ _id, ...filters }).lean();
-  console.log('resut', result);
-
   return !!result;
 };
-
-/**
- *
- * @param obj can pass offset, limit, filter, select and populate objects or strings
- * @returns
- */
 
 const getPosts = async ({
   offset,
@@ -44,8 +34,12 @@ const getPosts = async ({
 
   if (populate.comments)
     query.populate({
-      path: 'comments.user',
-      select: (userSelect += ' _id created_at'),
+      path: 'comments',
+      select: '-post -updated_at -__v',
+      populate: {
+        path: 'user',
+        select: 'name lastname avatar',
+      },
     });
 
   if (populate.event)
@@ -54,24 +48,24 @@ const getPosts = async ({
       populate: [
         {
           path: 'participants',
-          select: userSelect,
+          select: 'name lastname avatar',
         },
         {
           path: 'initiator',
-          select: userSelect,
+          select: 'name lastname avatar',
         },
         {
           path: 'rejectedParticipants',
-          select: userSelect,
+          select: 'name lastname avatar',
         },
         {
           path: 'awaitingApprovalParticipants',
-          select: userSelect,
+          select: 'name lastname avatar',
         },
       ],
     });
 
-  if (populate.author) query.populate({ path: 'author', select: userSelect });
+  if (populate.author) query.populate({ path: 'author', select: 'name lastname avatar' });
 
   if (sort) query.sort(sort);
 
@@ -95,8 +89,12 @@ const getPost = async (
 
   if (options?.populate?.comments)
     query.populate({
-      path: 'comments.user',
-      select: (userSelect += ' _id created_at'),
+      path: 'comments',
+      select: '-post -updated_at -__v',
+      populate: {
+        path: 'user',
+        select: 'name lastname avatar',
+      },
     });
 
   if (options?.populate?.event)
@@ -105,24 +103,24 @@ const getPost = async (
       populate: [
         {
           path: 'participants',
-          select: userSelect,
+          select: 'name lastname avatar',
         },
         {
           path: 'initiator',
-          select: userSelect,
+          select: 'name lastname avatar',
         },
         {
           path: 'rejectedParticipants',
-          select: userSelect,
+          select: 'name lastname avatar',
         },
         {
           path: 'awaitingApprovalParticipants',
-          select: userSelect,
+          select: 'name lastname avatar',
         },
       ],
     });
 
-  if (options?.populate?.author) query.populate({ path: 'author', select: userSelect });
+  if (options?.populate?.author) query.populate({ path: 'author', select: 'name lastname avatar' });
 
   return query;
 };

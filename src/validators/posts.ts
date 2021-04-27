@@ -15,14 +15,27 @@ export = {
   getPost: [entityExists(ENTITIES.post, {})],
 
   deletePost: [
+    entityExists(ENTITIES.post, {}),
     check('id')
-      .custom((value, { req }) => postOwner(value, req.user._id))
-      .withMessage(Errors.A14),
+      .custom(async (value, { req }) => {
+        // restricted to post owners
+        if (!(await postOwner(value, req.user._id))) {
+          throw new Error();
+        }
+      })
+      .withMessage(Errors.A14)
+      .bail(),
   ],
 
   updatePost: [
+    entityExists(ENTITIES.post, {}),
     check('id')
-      .custom(async (value, { req }) => postOwner(value, req.user._id))
+      .custom(async (value, { req }) => {
+        // restricted to post owners
+        if (!(await postOwner(value, req.user._id))) {
+          throw new Error();
+        }
+      })
       .withMessage(Errors.A14)
       .bail(),
     check('text').exists().withMessage(Errors.A15).bail(),
@@ -62,8 +75,19 @@ export = {
   likePost: [
     entityExists(ENTITIES.post, {}),
     check('id')
+      .custom(async (value, { req }) => {
+        // do not allow if the user is author
+        if (await postOwner(value, req.user._id)) {
+          throw new Error();
+        }
+      })
+      .withMessage(Errors.A21)
+      .bail()
       .custom(async (val, { req }) => {
-        return checkIfLiked(val, req.user._id);
+        // do not allow if already liked
+        if (await checkIfLiked(val, req.user._id)) {
+          throw new Error();
+        }
       })
       .withMessage(Errors.A17)
       .bail(),
@@ -72,7 +96,20 @@ export = {
   dislikePost: [
     entityExists(ENTITIES.post, {}),
     check('id')
-      .custom(async (val, { req }) => checkIfLiked(val, req.user._id))
+      .custom(async (value, { req }) => {
+        // do not allow if the user is author
+        if (await postOwner(value, req.user._id)) {
+          throw new Error();
+        }
+      })
+      .withMessage(Errors.A21)
+      .bail()
+      .custom(async (val, { req }) => {
+        // do not allow if didn't like
+        if (!(await checkIfLiked(val, req.user._id))) {
+          throw new Error();
+        }
+      })
       .withMessage(Errors.A18)
       .bail(),
   ],
@@ -80,7 +117,20 @@ export = {
   sharePost: [
     entityExists(ENTITIES.post, {}),
     check('id')
-      .custom(async (val, { req }) => !checkIfShared(val, req.user._id))
+      .custom(async (value, { req }) => {
+        // do not allow if the user is author
+        if (await postOwner(value, req.user._id)) {
+          throw new Error();
+        }
+      })
+      .withMessage(Errors.A21)
+      .bail()
+      .custom(async (val, { req }) => {
+        // do not allow if already shared
+        if (await checkIfShared(val, req.user._id)) {
+          throw new Error();
+        }
+      })
       .withMessage(Errors.A19)
       .bail(),
   ],
@@ -88,7 +138,20 @@ export = {
   unsharePost: [
     entityExists(ENTITIES.post, {}),
     check('id')
-      .custom(async (val, { req }) => checkIfShared(val, req.user._id))
+      .custom(async (value, { req }) => {
+        // do not allow if the user is author
+        if (await postOwner(value, req.user._id)) {
+          throw new Error();
+        }
+      })
+      .withMessage(Errors.A21)
+      .bail()
+      .custom(async (val, { req }) => {
+        // do not allow if didn't share
+        if (!(await checkIfShared(val, req.user._id))) {
+          throw new Error();
+        }
+      })
       .withMessage(Errors.A19)
       .bail(),
   ],

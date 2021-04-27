@@ -20,7 +20,8 @@ const errors = {
   A18: 'Can not dislike',
   A19: 'Already shared',
   A20: 'Can not unshare',
- 
+  A21: 'Can not like or share your own posts.',
+  A22: 'Can not affect others comments'
 };
 
 export default errors;

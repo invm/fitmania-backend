@@ -105,6 +105,10 @@ const Responder = (service: Function) => {
   };
 };
 
+const isObject = (obj: any) => {
+  return obj && typeof obj === 'object' && obj.constructor === Object;
+};
+
 /**
  * Used to detect the type of the request and return the appropriate location of the parameters.
  */
@@ -139,7 +143,9 @@ const getParamType = (req: Request): string => {
 const verifyValidation = (req: Request, res: Response) => {
   const errors = validationResult(req);
   const hasValidationErrors = !errors.isEmpty();
-  const validationErrors = errors.array().map((v) => ({ ...v, value: JSON.stringify(v.value) }));;
+  const validationErrors = errors
+    .array()
+    .map((v) => ({ ...v, value: isObject(v.value) ? JSON.stringify(v.value) : v.value }));
 
   if (
     (req.method === 'GET' && Object.keys(req.body).length > 0) ||

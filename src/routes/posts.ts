@@ -5,6 +5,7 @@ import CommentController from '../controllers/comments';
 import { upload } from '../middleware';
 import Responder from '../utils/Responder';
 import Validator from '../validators/posts';
+import CommentsValidator from '../validators/comments';
 
 // router.get('/statistics', getStatistics);
 // router.post('/:id/event/remove-from-rejected', removeFromRejectedList);
@@ -15,13 +16,29 @@ import Validator from '../validators/posts';
 // router.post('/:id/event/leave', leaveEvent);
 // router.delete('/:id/event', removeEvent);
 
-router.get('/:id/comments', Responder(CommentController.getComments));
+router.get(
+  '/:id/comments',
+  CommentsValidator.getComments,
+  Responder(CommentController.getComments)
+);
 
-router.post('/:id/comments');
+router.post(
+  '/:id/comments',
+  CommentsValidator.createComment,
+  Responder(CommentController.createComment)
+);
 
-router.patch('/:id/comments/:commentId', Responder(CommentController.editComment));
+router.patch(
+  '/:id/comments/:commentId',
+  CommentsValidator.updateComment,
+  Responder(CommentController.editComment)
+);
 
-router.delete('/:id/comments/:commentId', Responder(CommentController.removeComment));
+router.delete(
+  '/:id/comments/:commentId',
+  CommentsValidator.deleteComment,
+  Responder(CommentController.removeComment)
+);
 
 router.get('/user/:id', Validator.getUsersPosts, Responder(PostController.getUsersPosts));
 

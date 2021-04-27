@@ -4,6 +4,7 @@ import { IObject } from '../types/IObject';
 import ENTITIES from '../models';
 import UserDBService from '../services/User';
 import PostDBService from '../services/Posts';
+import CommentDBService from '../services/Comment';
 
 const paginationQuery = [
   check('offset').exists().withMessage(Errors.A3).bail(),
@@ -15,11 +16,11 @@ const postOwner = async (postId: string, userId: string) => {
 };
 
 const checkIfLiked = async (_id: string, userId: string) => {
-  return !(await PostDBService.checkIfLiked(_id, userId));
+  return !!(await PostDBService.checkIfLiked(_id, userId));
 };
 
 const checkIfShared = async (_id: string, userId: string) => {
-  return !(await PostDBService.checkIfShared(_id, userId));
+  return !!(await PostDBService.checkIfShared(_id, userId));
 };
 
 const entityExists = (
@@ -41,6 +42,9 @@ const entityExists = (
           break;
         case ENTITIES.post:
           exists = await PostDBService.exists(val, filter);
+          break;
+        case ENTITIES.comment:
+          exists = await CommentDBService.exists(val, filter);
           break;
         default:
           break;
