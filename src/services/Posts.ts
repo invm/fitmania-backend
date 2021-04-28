@@ -59,7 +59,7 @@ const getPosts = async ({
           select: 'name lastname avatar',
         },
         {
-          path: 'awaitingApprovalParticipants',
+          path: 'pendingApprovalParticipants',
           select: 'name lastname avatar',
         },
       ],
@@ -114,7 +114,7 @@ const getPost = async (
           select: 'name lastname avatar',
         },
         {
-          path: 'awaitingApprovalParticipants',
+          path: 'pendingApprovalParticipants',
           select: 'name lastname avatar',
         },
       ],

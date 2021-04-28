@@ -21,7 +21,13 @@ const errors = {
   A19: 'Already shared',
   A20: 'Can not unshare',
   A21: 'Can not like or share your own posts.',
-  A22: 'Can not affect others comments'
+  A22: 'Can not affect others comments',
+  A23: 'The post does not have an event',
+  A24: 'Can not join your own event.',
+  A25: 'Already on pending list.',
+  A26: 'You have been rejected from this event.',
+  A27: 'You are not allowed to join this event',
+  A28: 'No places left in the event',
 };
 
 export default errors;

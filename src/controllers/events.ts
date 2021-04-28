@@ -1,3 +1,7 @@
+import { Request } from 'express';
+import PostsDBService from '../services/Posts';
+import EventsDBService from '../services/Events';
+import UsersDBService from '../services/User';
 
 // // @desc     Delete an event from post
 // // @route    DELETE /api/posts/:id/event
@@ -71,7 +75,7 @@
 //   let user = await User.findById(String(userId));
 //   let participant = user._id;
 //   post.event.participants.push(participant);
-//   post.event.awaitingApprovalParticipants.pull({ _id: entryId });
+//   post.event.pendingApprovalParticipants.pull({ _id: entryId });
 //   post.save();
 //   post = await Post.findById(req.params.id);
 //   return res.status(200).json({ msg: 'Participant added', post });
@@ -106,7 +110,7 @@
 //     name: user.name,
 //   };
 //   post.event.rejectedParticipants.push(participant);
-//   post.event.awaitingApprovalParticipants.pull({ _id: entryId });
+//   post.event.pendingApprovalParticipants.pull({ _id: entryId });
 //   post.save();
 //   post = await Post.findById(req.params.id);
 //   return res.status(200).json({ msg: 'Participant rejected.', post });
@@ -141,7 +145,7 @@
 //       avatar: user.avatar,
 //       name: user.name,
 //     };
-//     post.event.awaitingApprovalParticipants.push(participant);
+//     post.event.pendingApprovalParticipants.push(participant);
 //     post.save();
 //     post = await Post.findById(req.params.id);
 //     return res
@@ -151,71 +155,20 @@
 //   return res.status(418).json({ msg: 'Teapot here' });
 // };
 
-// exports.joinEvent = async (req: any, res: Response, next: NextFunction) => {
-//   let post = await Post.findById(req.params.id);
-//   if (!post) return res.status(404).json({ msg: 'No post found' });
-//   if (post.user._id == req.user)
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are not allowed to use this function.' });
-//   let isNotAwaiting =
-//     post.event.awaitingApprovalParticipants.findIndex(
-//       (item: any) => item.toString() === req.user
-//     ) === -1;
-//   let isNotParticipant =
-//     post.event.participants.findIndex(
-//       (item: any) => item.toString() === req.user
-//     ) === -1;
-//   let isNotRejected =
-//     post.event.rejectedParticipants.findIndex(
-//       (item: any) => item.toString() === req.user
-//     ) === -1;
-//   if (!isNotRejected) {
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are forbidden from using this function.' });
-//   } else if (post.event.openEvent && isNotAwaiting && isNotParticipant) {
-//     let user = await User.findById(req.user);
-//     let participant = {
-//       id: user._id,
-//       avatar: user.avatar,
-//       name: user.name,
-//     };
-//     post.event.participants.push(participant);
-//     post.save();
-//     post = await Post.findById(req.params.id);
-//     return res
-//       .status(200)
-//       .json({ msg: "You've joined the event", participant });
-//   }
-//   return res.status(418).json({ msg: 'Teapot here' });
-// };
+const joinEvent = async (req: Request) => {
+  let post = await PostsDBService.getPost({ _id: req.params.id });
+  // let event = await EventsDBService.getEvent({ _id: post.event });
 
-// exports.leaveEvent = async (req: any, res: Response, next: NextFunction) => {
-//   let post = await Post.findById(req.params.id);
-//   if (!post) return res.status(404).json({ msg: 'No post found' });
-//   let isParticipant =
-//     post.event.participants.findIndex(
-//       (item: any) => String(item.toString()) === String(req.user)
-//     ) >= 0;
-//   if (post.user._id == req.user)
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are not allowed to use this function.' });
-//   let isNotRejected =
-//     post.event.rejectedParticipants.findIndex(
-//       (item: any) => item.toString() === req.user
-//     ) === -1;
-//   if (!isNotRejected) {
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are forbidden from using this function.' });
-//   } else if (isParticipant) {
-//     const { entryId } = req.body;
-//     post.event.participants.pull({ _id: entryId });
-//     post.save();
-//     post = await Post.findById(req.params.id);
-//     return res.status(200).json({ msg: "You've left the event" });
-//   }
-//   return res.status(418).json({ msg: 'Teapot here' });
-// };
+  // event.participants.push(req.user._id);
+  // await event.save();
+  await EventsDBService.updateEvent({ _id: post.event }, { $push: { participants: req.user._id } });
+  return;
+};
+
+const leaveEvent = async (req: Request) => {
+  let post = await PostsDBService.getPost({ _id: req.params.id });
+
+  await EventsDBService.updateEvent({ _id: post.event }, { $pull: { participants: req.user._id } });
+};
+
+export default { joinEvent, leaveEvent };

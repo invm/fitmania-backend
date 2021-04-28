@@ -5,9 +5,10 @@ import { entityExists, paginationQuery, postOwner, checkIfLiked, checkIfShared }
 import ENTITIES, { displayEnum } from '../models';
 
 export = {
+  getUsersPosts: paginationQuery,
+
   getPosts: [
-    check('offset').exists().withMessage(Errors.A3).bail(),
-    check('limit').exists().withMessage(Errors.A4).bail(),
+    ...paginationQuery,
     check('isEvent').optional().isNumeric().withMessage(Errors.A0).bail(),
     check('sports').optional().isString().withMessage(Errors.A0).bail(),
   ],
@@ -62,6 +63,7 @@ export = {
           !obj?.location?.coordinates?.length ||
           !obj.startDate ||
           !obj.limitParticipants ||
+          obj.limitParticipants < 2 ||
           !obj.pace
         ) {
           return false;
@@ -155,6 +157,4 @@ export = {
       .withMessage(Errors.A19)
       .bail(),
   ],
-
-  getUsersPosts: paginationQuery,
 };

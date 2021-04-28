@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request } from 'express';
 import CommentsDBService from '../services/Comment';
 import PostsDBService from '../services/Posts';
 

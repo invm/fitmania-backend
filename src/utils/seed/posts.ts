@@ -43,7 +43,7 @@ const createPost = async (userId: string, sport: string) => {
       participants: [userId],
       openEvent: true,
       rejectedParticipants: [],
-      awaitingApprovalParticipants: [],
+      pendingApprovalParticipants: [],
       limitParticipants: limit,
       pace: 'Medium',
       startDate:

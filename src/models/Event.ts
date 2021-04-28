@@ -25,7 +25,7 @@ export interface IEvent {
   pace?: string;
   openEvent?: boolean;
   rejectedParticipants?: string[];
-  awaitingApprovalParticipants?: string[];
+  pendingApprovalParticipants?: string[];
   created_at?: Date;
   location?: { type: string; coordinates: number[] };
 }
@@ -64,7 +64,7 @@ const EventSchema = new Schema(
         ref: 'user',
       },
     ],
-    awaitingApprovalParticipants: [
+    pendingApprovalParticipants: [
       {
         type: mongoose.SchemaTypes.ObjectId,
         ref: 'user',

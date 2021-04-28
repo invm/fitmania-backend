@@ -80,7 +80,7 @@ exports.getGroupPosts = async (
       .populate('event.participants', 'name lastname avatar')
       .populate('event.initiator', 'name lastname avatar')
       .populate('event.rejectedParticipants', 'name lastname avatar')
-      .populate('event.awaitingApprovalParticipants', 'name lastname avatar')
+      .populate('event.pendingApprovalParticipants', 'name lastname avatar')
       .populate('comments.user', 'name lastname _id')
       .exec();
     return res.status(200).json({ result });

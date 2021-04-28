@@ -1,7 +1,8 @@
 const ENTITIES = {
-  post: 'post',
-  user: 'user',
-  comment: 'comment',
+  post: 'Post',
+  user: 'User',
+  comment: 'Comment',
+  event: 'Event',
 };
 
 export const displayEnum = ['all', 'friends'];
