@@ -10,11 +10,26 @@ import CommentsValidator from '../validators/comments';
 import EventsValidator from '../validators/events';
 
 // router.get('/statistics', getStatistics);
-// router.post('/:id/event/remove-from-rejected', removeFromRejectedList);
-// router.post('/:id/event/ask-to-join', askToJoinEvent);
-// router.post('/:id/event/allow', allowAdmitEvent);
-// router.post('/:id/event/reject', rejectAdmitEvent);
-// router.delete('/:id/event', removeEvent);
+router.post(
+  '/:id/event/remove-from-rejected',
+  EventsValidator.removeFromRejectedList,
+  Responder(EventController.removeFromRejectedList)
+);
+router.post(
+  '/:id/event/ask-to-join',
+  EventsValidator.askToJoinEvent,
+  Responder(EventController.askToJoinEvent)
+);
+router.post(
+  '/:id/event/allow',
+  EventsValidator.allowAdmitEvent,
+  Responder(EventController.allowAdmitEvent)
+);
+router.post(
+  '/:id/event/reject',
+  EventsValidator.rejectAdmitEvent,
+  Responder(EventController.rejectAdmitEvent)
+);
 
 router.post('/:id/event/join', EventsValidator.joinEvent, Responder(EventController.joinEvent));
 router.post('/:id/event/leave', EventsValidator.leaveEvent, Responder(EventController.leaveEvent));

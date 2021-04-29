@@ -25,13 +25,11 @@ const checkIfShared = async (_id: string, userId: string) => {
   return !!(await PostsDBService.checkIfShared(_id, userId));
 };
 
-const canJoinEvent = async () => {
+const canJoinEvent = () => {
   const validator = check('id')
     .custom(async (_id, { req }) => {
       // check if the post is also an event
-      console.log('32');
-
-      req.post = await PostsDBService.getPost({ _id });
+      req.post = await PostsDBService.getPost({ _id }, { populate: { event: true } });
       if (!req?.post?.event) {
         throw new Error();
       }
@@ -39,48 +37,32 @@ const canJoinEvent = async () => {
     .withMessage(Errors.A23)
     .bail()
     .custom(async (_id, { req }) => {
-      console.log('42', req.post);
-
       // check if the author is the user trying to join
-      if (!req?.post?.author?.toString() === req.user._id.toString()) {
+      if (req?.post?.author?.toString() === req.user._id.toString()) {
         throw new Error();
       }
     })
     .withMessage(Errors.A24)
     .bail()
     .custom(async (_id, { req }) => {
-      console.log('52');
       // check if the user is not in pending list
-      if (req?.post?.pendingApprovalParticipants?.includes(req.user._id.toString())) {
+      if (req?.post?.event?.pendingApprovalParticipants?.includes(req.user._id.toString())) {
         throw new Error();
       }
     })
     .withMessage(Errors.A25)
     .bail()
     .custom(async (_id, { req }) => {
-      console.log('51');
-
       // check if the user is not a participant
-      if (req?.post?.participants?.includes(req.user._id.toString())) {
+      if (req?.post?.event?.participants?.includes(req.user._id.toString())) {
         throw new Error();
       }
     })
-    .withMessage(Errors.A26)
+    .withMessage(Errors.A29)
     .bail()
     .custom(async (_id, { req }) => {
-      console.log('71');
-
       //  check if the user is not in rejected list
-      if (req?.post?.rejectedParticipants?.includes(req.user._id.toString())) {
-        throw new Error();
-      }
-    })
-    .withMessage(Errors.A26)
-    .bail()
-    .custom(async (_id, { req }) => {
-      console.log('81');
-      //  check if the user is not in rejected list
-      if (req?.post?.rejectedParticipants?.includes(req.user._id.toString())) {
+      if (req?.post?.event?.rejectedParticipants?.includes(req.user._id.toString())) {
         throw new Error();
       }
     })
@@ -90,7 +72,7 @@ const canJoinEvent = async () => {
       // check if the event is open event
       // check if the event is close event and the user is a friend of the author
       let areFriends = await FriendsDBService.areFriends(req.user._id, req.post.author);
-      if (!req?.post.openEvent && !areFriends) {
+      if (!req?.post?.event?.openEvent && !areFriends) {
         throw new Error();
       }
     })
@@ -98,7 +80,7 @@ const canJoinEvent = async () => {
     .bail()
     .custom(async (_id, { req }) => {
       // check if the event has any room left for user
-      if (!(req?.post.participants?.length < req.post.limitParticipants)) {
+      if (!(req?.post?.event?.participants?.length < req.post?.event?.limitParticipants)) {
         throw new Error();
       }
     })
@@ -112,8 +94,6 @@ const entityExists = (
   entity: string,
   { filter, fieldName, required }: { filter?: IObject; fieldName?: string; required?: boolean }
 ) => {
-  console.log('115');
-
   const validator = check(fieldName ? fieldName : 'id')
     .isString()
     .withMessage(Errors.A0)

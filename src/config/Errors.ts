@@ -28,6 +28,9 @@ const errors = {
   A26: 'You have been rejected from this event.',
   A27: 'You are not allowed to join this event',
   A28: 'No places left in the event',
+  A29: 'You have already joined the event',
+  A30: 'You can not leave this event.',
+  A31: 'User is not in rejected list.',
 };
 
 export default errors;

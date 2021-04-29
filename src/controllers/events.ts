@@ -3,172 +3,91 @@ import PostsDBService from '../services/Posts';
 import EventsDBService from '../services/Events';
 import UsersDBService from '../services/User';
 
-// // @desc     Delete an event from post
-// // @route    DELETE /api/posts/:id/event
-// // @access   Private
+const removeFromRejectedList = async (req: Request) => {
+  let post = await PostsDBService.getPost({ _id: req.params.id });
+  await EventsDBService.updateEvent(
+    { _id: post.event },
+    {
+      $pull: { rejectedParticipants: req.user._id },
+    }
+  );
+  post = await PostsDBService.getPost(
+    { _id: req.params.id },
+    { populate: { author: true, comments: true, event: true, populateEventUsers: true } }
+  );
+  return { msg: 'Participant can ask to join the event again.', post };
+};
 
-// exports.removeEvent = async (req: any, res: Response, next: NextFunction) => {
-//   const post = await Post.findById(req.params.id);
-//   if (!post) return res.status(404).json({ msg: 'No post found' });
-//   if (post.user._id != req.user)
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are not allowed to remove this event' });
-//   post.isEvent = false;
-//   post.save();
-//   res.status(200).json({ msg: 'Removed an event from the post' });
-// };
+const allowAdmitEvent = async (req: Request) => {
+  let post = await PostsDBService.getPost({ _id: req.params.id });
+  await EventsDBService.updateEvent(
+    { _id: post.event },
+    {
+      $push: { participants: req.user._id },
+      $pull: { pendingApprovalParticipants: req.user._id },
+    }
+  );
+  post = await PostsDBService.getPost(
+    { _id: req.params.id },
+    { populate: { author: true, comments: true, event: true, populateEventUsers: true } }
+  );
+  return { msg: 'Participant allowed.', post };
+};
 
-// exports.removeFromRejectedList = async (
-//   req: any,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   let post = await Post.findById(req.params.id);
-//   if (!post || !post.isEvent)
-//     return res
-//       .status(404)
-//       .json({ msg: 'No post found or the post is not an event.' });
-//   if (String(post.user._id) !== String(req.user))
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are not allowed to use this function.' });
-//   let { userId, entryId } = req.body;
-//   let isRejected =
-//     post.event.rejectedParticipants.findIndex(
-//       (item: any) => String(item) === userId
-//     ) !== -1;
-//   if (isRejected) {
-//     post.event.rejectedParticipants.pull({ _id: entryId });
-//     post.save();
-//     return res.status(200).json({
-//       msg: 'Removed from rejected list.',
-//     });
-//   }
-// };
+const rejectAdmitEvent = async (req: Request) => {
+  let post = await PostsDBService.getPost({ _id: req.params.id });
+  await EventsDBService.updateEvent(
+    { _id: post.event },
+    {
+      $push: { rejectedParticipants: req.user._id },
+      $pull: { pendingApprovalParticipants: req.user._id },
+    }
+  );
+  post = await PostsDBService.getPost(
+    { _id: req.params.id },
+    { populate: { author: true, comments: true, event: true, populateEventUsers: true } }
+  );
+  return { msg: 'Participant rejected.', post };
+};
 
-// exports.allowAdmitEvent = async (
-//   req: any,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   let post = await Post.findById(req.params.id);
-//   if (!post || !post.isEvent)
-//     return res
-//       .status(404)
-//       .json({ msg: 'No post found or the post is not an event.' });
-//   if (String(post.user._id) !== String(req.user))
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are not allowed to use this function.' });
-//   let { userId, entryId } = req.body;
-//   let isNotRejected =
-//     post.event.rejectedParticipants.findIndex(
-//       (item: any) => item.toString() === userId
-//     ) === -1;
-//   if (!isNotRejected) {
-//     return res.status(400).json({
-//       msg:
-//         'This person has been rejected from that event, first remove him from the rejected list.',
-//     });
-//   }
-//   let user = await User.findById(String(userId));
-//   let participant = user._id;
-//   post.event.participants.push(participant);
-//   post.event.pendingApprovalParticipants.pull({ _id: entryId });
-//   post.save();
-//   post = await Post.findById(req.params.id);
-//   return res.status(200).json({ msg: 'Participant added', post });
-// };
-
-// exports.rejectAdmitEvent = async (
-//   req: any,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   let post = await Post.findById(req.params.id);
-//   if (!post) return res.status(404).json({ msg: 'No post found' });
-//   if (String(post.user._id) !== String(req.user))
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are not allowed to use this function.' });
-//   let { userId, entryId } = req.body;
-//   let isNotRejected =
-//     post.event.rejectedParticipants.findIndex(
-//       (item: any) => item.toString() === userId
-//     ) === -1;
-//   if (!isNotRejected) {
-//     return res.status(400).json({
-//       msg:
-//         'This person has been rejected from that event, first remove him from the rejected list.',
-//     });
-//   }
-//   let user = await User.findById(req.user);
-//   let participant = {
-//     id: user._id,
-//     avatar: user.avatar,
-//     name: user.name,
-//   };
-//   post.event.rejectedParticipants.push(participant);
-//   post.event.pendingApprovalParticipants.pull({ _id: entryId });
-//   post.save();
-//   post = await Post.findById(req.params.id);
-//   return res.status(200).json({ msg: 'Participant rejected.', post });
-// };
-
-// exports.askToJoinEvent = async (
-//   req: any,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   let post = await Post.findById(req.params.id);
-//   if (!post) return res.status(404).json({ msg: 'No post found' });
-//   if (post.user._id == req.user)
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are not allowed to use this function.' });
-//   let isNotRejected =
-//     post.event.rejectedParticipants.findIndex(
-//       (item: any) => item.toString() === req.user
-//     ) === -1;
-//   if (!isNotRejected) {
-//     return res
-//       .status(403)
-//       .json({ msg: 'You are forbidden from using this function.' });
-//   } else if (
-//     !post.event.openEvent &&
-//     !post.event.participants.includes(req.user)
-//   ) {
-//     let user = await User.findById(req.user);
-//     let participant = {
-//       id: user._id,
-//       avatar: user.avatar,
-//       name: user.name,
-//     };
-//     post.event.pendingApprovalParticipants.push(participant);
-//     post.save();
-//     post = await Post.findById(req.params.id);
-//     return res
-//       .status(200)
-//       .json({ msg: "You've asked to join the event", participant });
-//   }
-//   return res.status(418).json({ msg: 'Teapot here' });
-// };
+const askToJoinEvent = async (req: Request) => {
+  let post = await PostsDBService.getPost({ _id: req.params.id });
+  await EventsDBService.updateEvent(
+    { _id: post.event },
+    { $push: { pendingApprovalParticipants: req.user._id } }
+  );
+  post = await PostsDBService.getPost(
+    { _id: req.params.id },
+    { populate: { author: true, comments: true, event: true, populateEventUsers: true } }
+  );
+  return { msg: 'Asked to join the event', post };
+};
 
 const joinEvent = async (req: Request) => {
   let post = await PostsDBService.getPost({ _id: req.params.id });
-  // let event = await EventsDBService.getEvent({ _id: post.event });
-
-  // event.participants.push(req.user._id);
-  // await event.save();
   await EventsDBService.updateEvent({ _id: post.event }, { $push: { participants: req.user._id } });
-  return;
+  post = await PostsDBService.getPost(
+    { _id: req.params.id },
+    { populate: { author: true, comments: true, event: true, populateEventUsers: true } }
+  );
+  return { msg: 'Joined the event', post };
 };
 
 const leaveEvent = async (req: Request) => {
   let post = await PostsDBService.getPost({ _id: req.params.id });
-
   await EventsDBService.updateEvent({ _id: post.event }, { $pull: { participants: req.user._id } });
+  post = await PostsDBService.getPost(
+    { _id: req.params.id },
+    { populate: { author: true, comments: true, event: true, populateEventUsers: true } }
+  );
+  return { msg: 'Left the event', post };
 };
 
-export default { joinEvent, leaveEvent };
+export default {
+  joinEvent,
+  leaveEvent,
+  removeFromRejectedList,
+  allowAdmitEvent,
+  rejectAdmitEvent,
+  askToJoinEvent,
+};

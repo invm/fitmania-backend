@@ -80,6 +80,7 @@ const getPost = async (
       author?: boolean;
       comments?: boolean;
       event?: boolean;
+      populateEventUsers?: boolean;
     };
   }
 ) => {
@@ -100,24 +101,26 @@ const getPost = async (
   if (options?.populate?.event)
     query.populate({
       path: 'event',
-      populate: [
-        {
-          path: 'participants',
-          select: 'name lastname avatar',
-        },
-        {
-          path: 'initiator',
-          select: 'name lastname avatar',
-        },
-        {
-          path: 'rejectedParticipants',
-          select: 'name lastname avatar',
-        },
-        {
-          path: 'pendingApprovalParticipants',
-          select: 'name lastname avatar',
-        },
-      ],
+      populate: options?.populate?.populateEventUsers
+        ? [
+            {
+              path: 'participants',
+              select: 'name lastname avatar',
+            },
+            {
+              path: 'initiator',
+              select: 'name lastname avatar',
+            },
+            {
+              path: 'rejectedParticipants',
+              select: 'name lastname avatar',
+            },
+            {
+              path: 'pendingApprovalParticipants',
+              select: 'name lastname avatar',
+            },
+          ]
+        : [],
     });
 
   if (options?.populate?.author) query.populate({ path: 'author', select: 'name lastname avatar' });

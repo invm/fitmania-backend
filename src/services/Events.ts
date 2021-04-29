@@ -14,11 +14,17 @@ const exists = async (_id: string, filters: IObject) => {
   return !!result;
 };
 
-const getEvent = async (filter: IObject) => {
-  return Event.findOne(filter).populate(
-    'initiator participants rejectedParticipants pendingApprovalParticipants',
-    '_id name lastname avatar'
-  );
+const getEvent = async (filter: IObject, options?: { populate: boolean }) => {
+  let query = Event.findOne(filter);
+
+  if (options?.populate) {
+    query.populate(
+      'initiator participants rejectedParticipants pendingApprovalParticipants',
+      '_id name lastname avatar'
+    );
+  }
+
+  return query;
 };
 
 const updateEvent = async (filter: IObject, params: IObject) => {
