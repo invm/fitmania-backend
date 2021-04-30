@@ -9,8 +9,8 @@ import EventDBService from '../services/Events';
 import FriendsDBService from '../services/Friends';
 
 const paginationQuery = [
-  check('offset').exists().withMessage(Errors.A3).bail(),
-  check('limit').exists().withMessage(Errors.A4).bail(),
+  check('offset').exists().withMessage(Errors.A36).bail(),
+  check('limit').exists().withMessage(Errors.A37).bail(),
 ];
 
 const postOwner = async (postId: string, userId: string) => {
@@ -48,8 +48,6 @@ const canJoinEvent = () => {
     .bail()
     .custom((_, { req }) => {
       // check if the event has not started
-      console.log(new Date(req.post?.event?.startDate).getTime() < new Date().getTime());
-
       if (new Date(req.post?.event?.startDate).getTime() < new Date().getTime()) {
         throw new Error();
       }

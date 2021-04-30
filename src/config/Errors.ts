@@ -33,7 +33,12 @@ const errors = {
   A31: 'User is not in rejected list.',
   A32: 'Event start date has passed.',
   A33: 'User is not a rejected participant.',
-  A34: 'User is not pending approval.'
+  A34: 'User is not pending approval.',
+  A35: 'Pending request already exists.',
+  A36: 'Offset is required',
+  A37: 'Limit is required',
+  A38: 'There is not pending request from this user.',
+  A39: 'You are not friends with this user.'
 };
 
 export default errors;

@@ -9,7 +9,9 @@ import PostValidator from '../validators/posts';
 import CommentsValidator from '../validators/comments';
 import EventsValidator from '../validators/events';
 
+// TODO:
 // router.get('/statistics', getStatistics);
+
 router.post(
   '/:id/event/remove-from-rejected/:user',
   EventsValidator.removeFromRejectedList,

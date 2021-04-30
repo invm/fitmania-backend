@@ -9,7 +9,7 @@ router.use(isAuthenticated)
 
 router.use('/posts', require('./posts'));
 
-// router.use('/social', require('./social'));
+router.use('/friends', require('./friends'));
 
 // router.use('/group', require('./group'));
 

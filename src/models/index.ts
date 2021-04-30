@@ -3,6 +3,7 @@ const ENTITIES = {
   user: 'User',
   comment: 'Comment',
   event: 'Event',
+  friendRequest: 'FriendRequest',
 };
 
 export const displayEnum = ['all', 'friends'];
