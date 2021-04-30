@@ -8,7 +8,7 @@ const removeFromRejectedList = async (req: Request) => {
   await EventsDBService.updateEvent(
     { _id: post.event },
     {
-      $pull: { rejectedParticipants: req.user._id },
+      $pull: { rejectedParticipants: req.params.user },
     }
   );
   post = await PostsDBService.getPost(
@@ -23,8 +23,8 @@ const allowAdmitEvent = async (req: Request) => {
   await EventsDBService.updateEvent(
     { _id: post.event },
     {
-      $push: { participants: req.user._id },
-      $pull: { pendingApprovalParticipants: req.user._id },
+      $push: { participants: req.params.user },
+      $pull: { pendingApprovalParticipants: req.params.user },
     }
   );
   post = await PostsDBService.getPost(
@@ -39,8 +39,8 @@ const rejectAdmitEvent = async (req: Request) => {
   await EventsDBService.updateEvent(
     { _id: post.event },
     {
-      $push: { rejectedParticipants: req.user._id },
-      $pull: { pendingApprovalParticipants: req.user._id },
+      $push: { rejectedParticipants: req.params.user },
+      $pull: { pendingApprovalParticipants: req.params.user },
     }
   );
   post = await PostsDBService.getPost(

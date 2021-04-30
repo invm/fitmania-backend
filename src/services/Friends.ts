@@ -24,4 +24,6 @@ const areFriends = async (user1: string, user2: string) => {
   }));
 };
 
+
+
 export default { getFriends, areFriends };

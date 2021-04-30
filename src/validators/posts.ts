@@ -13,10 +13,10 @@ export = {
     check('sports').optional().isString().withMessage(Errors.A0).bail(),
   ],
 
-  getPost: [entityExists(ENTITIES.post, {})],
+  getPost: [entityExists(ENTITIES.post, { required: true })],
 
   deletePost: [
-    entityExists(ENTITIES.post, {}),
+    entityExists(ENTITIES.post, { required: true }),
     check('id')
       .custom(async (value, { req }) => {
         // restricted to post owners
@@ -29,7 +29,7 @@ export = {
   ],
 
   updatePost: [
-    entityExists(ENTITIES.post, {}),
+    entityExists(ENTITIES.post, { required: true }),
     check('id')
       .custom(async (value, { req }) => {
         // restricted to post owners
@@ -62,11 +62,13 @@ export = {
           !obj?.eventType ||
           !obj?.location?.coordinates?.length ||
           !obj.startDate ||
+          obj.openEvent === undefined ||
+          new Date(obj.startDate).getTime() < new Date().getTime() ||
           !obj.limitParticipants ||
-          obj.limitParticipants < 2 ||
+          +obj.limitParticipants < 2 ||
           !obj.pace
         ) {
-          return false;
+          throw new Error();
         }
         return true;
       })
@@ -75,7 +77,7 @@ export = {
   ],
 
   likePost: [
-    entityExists(ENTITIES.post, {}),
+    entityExists(ENTITIES.post, { required: true }),
     check('id')
       .custom(async (value, { req }) => {
         // do not allow if the user is author
@@ -96,7 +98,7 @@ export = {
   ],
 
   dislikePost: [
-    entityExists(ENTITIES.post, {}),
+    entityExists(ENTITIES.post, { required: true }),
     check('id')
       .custom(async (value, { req }) => {
         // do not allow if the user is author
@@ -117,7 +119,7 @@ export = {
   ],
 
   sharePost: [
-    entityExists(ENTITIES.post, {}),
+    entityExists(ENTITIES.post, { required: true }),
     check('id')
       .custom(async (value, { req }) => {
         // do not allow if the user is author
@@ -138,7 +140,7 @@ export = {
   ],
 
   unsharePost: [
-    entityExists(ENTITIES.post, {}),
+    entityExists(ENTITIES.post, { required: true }),
     check('id')
       .custom(async (value, { req }) => {
         // do not allow if the user is author

@@ -5,10 +5,10 @@ import ENTITIES from '../models';
 import CommentsDBService from '../services/Comment';
 
 export = {
-  getComments: [entityExists(ENTITIES.post, {})],
+  getComments: [entityExists(ENTITIES.post, {required: true})],
 
   createComment: [
-    entityExists(ENTITIES.post, {}),
+    entityExists(ENTITIES.post, { required: true }),
     check('text')
       .exists()
       .withMessage(Errors.A0)
@@ -22,8 +22,8 @@ export = {
   ],
 
   updateComment: [
-    entityExists(ENTITIES.post, {}),
-    entityExists(ENTITIES.comment, { fieldName: 'commentId' }),
+    entityExists(ENTITIES.post, {required: true}),
+    entityExists(ENTITIES.comment, { fieldName: 'commentId', required: true }),
     check('commentId')
       .custom(async (val, { req }) => {
         let comment = await CommentsDBService.getComment(val);
@@ -45,8 +45,8 @@ export = {
   ],
 
   deleteComment: [
-    entityExists(ENTITIES.post, {}),
-    entityExists(ENTITIES.comment, { fieldName: 'commentId' }),
+    entityExists(ENTITIES.post, {required: true}),
+    entityExists(ENTITIES.comment, { fieldName: 'commentId', required: true }),
     check('commentId')
       .custom(async (val, { req }) => {
         let comment = await CommentsDBService.getComment(val);

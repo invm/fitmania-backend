@@ -21,9 +21,21 @@ const deleteComment = async (_id: string) => {
   return Comment.deleteOne({ _id });
 };
 
+const deletePostsComments = async (_id: string) => {
+  return Comment.deleteMany({ post: _id });
+};
+
 const exists = async (_id: string, filters: IObject) => {
   let result = await Comment.findOne({ _id, ...filters }).lean();
   return !!result;
 };
 
-export default { getComment, getComments, createComment, updateComment, deleteComment, exists };
+export default {
+  getComment,
+  getComments,
+  createComment,
+  updateComment,
+  deleteComment,
+  exists,
+  deletePostsComments,
+};

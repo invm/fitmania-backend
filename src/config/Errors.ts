@@ -31,6 +31,9 @@ const errors = {
   A29: 'You have already joined the event',
   A30: 'You can not leave this event.',
   A31: 'User is not in rejected list.',
+  A32: 'Event start date has passed.',
+  A33: 'User is not a rejected participant.',
+  A34: 'User is not pending approval.'
 };
 
 export default errors;

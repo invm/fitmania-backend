@@ -33,6 +33,7 @@ const canJoinEvent = () => {
       if (!req?.post?.event) {
         throw new Error();
       }
+      return true;
     })
     .withMessage(Errors.A23)
     .bail()
@@ -41,14 +42,27 @@ const canJoinEvent = () => {
       if (req?.post?.author?.toString() === req.user._id.toString()) {
         throw new Error();
       }
+      return true;
     })
     .withMessage(Errors.A24)
+    .bail()
+    .custom((_, { req }) => {
+      // check if the event has not started
+      console.log(new Date(req.post?.event?.startDate).getTime() < new Date().getTime());
+
+      if (new Date(req.post?.event?.startDate).getTime() < new Date().getTime()) {
+        throw new Error();
+      }
+      return true;
+    })
+    .withMessage(Errors.A32)
     .bail()
     .custom(async (_id, { req }) => {
       // check if the user is not in pending list
       if (req?.post?.event?.pendingApprovalParticipants?.includes(req.user._id.toString())) {
         throw new Error();
       }
+      return true;
     })
     .withMessage(Errors.A25)
     .bail()
@@ -57,6 +71,7 @@ const canJoinEvent = () => {
       if (req?.post?.event?.participants?.includes(req.user._id.toString())) {
         throw new Error();
       }
+      return true;
     })
     .withMessage(Errors.A29)
     .bail()
@@ -65,24 +80,16 @@ const canJoinEvent = () => {
       if (req?.post?.event?.rejectedParticipants?.includes(req.user._id.toString())) {
         throw new Error();
       }
+      return true;
     })
     .withMessage(Errors.A26)
-    .bail()
-    .custom(async (_id, { req }) => {
-      // check if the event is open event
-      // check if the event is close event and the user is a friend of the author
-      let areFriends = await FriendsDBService.areFriends(req.user._id, req.post.author);
-      if (!req?.post?.event?.openEvent && !areFriends) {
-        throw new Error();
-      }
-    })
-    .withMessage(Errors.A27)
     .bail()
     .custom(async (_id, { req }) => {
       // check if the event has any room left for user
       if (!(req?.post?.event?.participants?.length < req.post?.event?.limitParticipants)) {
         throw new Error();
       }
+      return true;
     })
     .withMessage(Errors.A28)
     .bail();
@@ -123,8 +130,10 @@ const entityExists = (
       if (!exists) {
         throw new Error();
       }
+      return true;
     })
-    .withMessage(Errors.A12); // The ID must belong to an existing entity
+    .withMessage(Errors.A12)
+    .bail(); // The ID must belong to an existing entity
 
   if (required) {
     validator.exists().withMessage(Errors.A13).bail(); // An ID is required to get details of an entity

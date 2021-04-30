@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import Post, { IPost } from '../models/Post';
 import User from '../models/User';
-import UserDBService from '../services/User';
 import PostsDBService from '../services/Posts';
 import EventsDBService from '../services/Events';
 import FriendsDBService from '../services/Friends';
+import CommentsDBService from '../services/Comment';
 import { IObject } from '../types/IObject';
 import compress from '../utils/compress';
 
@@ -71,26 +71,27 @@ const getUsersPosts = async (req: Request, res: Response, next: NextFunction) =>
   const friends = await FriendsDBService.getFriends(req.params.id);
   const { offset, limit } = req.query;
 
-  let privateFilter: IObject = {};
+  let filter = {
+    $or: [
+      {
+        display: 'all',
+        author: req.params.id,
+      },
+      { sharedBy: req.params.id },
+    ],
+  };
 
   if (friends.includes(req.user._id.toString())) {
-    privateFilter = {
+    filter.$or.push({
       display: 'friends',
-      user: req.params.id,
-    };
+      author: req.params.id,
+    });
   }
-
-  let publicFilter = {
-    display: 'all',
-    user: req.params.id,
-  };
 
   let posts = await PostsDBService.getPosts({
     offset: +offset,
     limit: +limit,
-    filter: {
-      $and: [{ $or: [privateFilter, publicFilter, { sharedBy: req.params.id }] }],
-    },
+    filter,
     select: '-__v -updated_at',
     populate: { author: true, comments: true, event: true },
     sort: { created_at: -1 },
@@ -147,6 +148,7 @@ const createPost = async (req: Request, res: Response, next: NextFunction) => {
       let eventDoc = await EventsDBService.createEvent({
         ...event,
         location: { type: 'Point', coordinates },
+        openEvent: +event.openEvent,
         initiator: req.user._id,
         participants: [req.user._id],
       });
@@ -199,6 +201,7 @@ const updatePost = async (req: Request, res: Response, next: NextFunction) => {
 const deletePost = async (req: Request, res: Response, next: NextFunction) => {
   let post = await PostsDBService.getPost({ _id: req.params.id });
   if (post.event) await EventsDBService.deleteEvent(post.event);
+  if (post.comments.length) await CommentsDBService.deletePostsComments(post._id);
   await PostsDBService.deletePost(req.params.id);
 
   return { msg: 'Removed post' };

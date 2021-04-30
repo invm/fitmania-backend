@@ -11,7 +11,7 @@ import EventsValidator from '../validators/events';
 
 // router.get('/statistics', getStatistics);
 router.post(
-  '/:id/event/remove-from-rejected',
+  '/:id/event/remove-from-rejected/:user',
   EventsValidator.removeFromRejectedList,
   Responder(EventController.removeFromRejectedList)
 );
@@ -21,12 +21,12 @@ router.post(
   Responder(EventController.askToJoinEvent)
 );
 router.post(
-  '/:id/event/allow',
+  '/:id/event/allow/:user',
   EventsValidator.allowAdmitEvent,
   Responder(EventController.allowAdmitEvent)
 );
 router.post(
-  '/:id/event/reject',
+  '/:id/event/reject/:user',
   EventsValidator.rejectAdmitEvent,
   Responder(EventController.rejectAdmitEvent)
 );
@@ -64,7 +64,7 @@ router.get('/', PostValidator.getPosts, Responder(PostController.getPosts));
 
 router.get('/:id', PostValidator.getPost, Responder(PostController.getPost));
 
-router.delete('/:id', PostValidator.deletePost, Responder(PostController.deletePost)); // TODO: add validator of id
+router.delete('/:id', PostValidator.deletePost, Responder(PostController.deletePost)); 
 
 router.post(
   '/',
@@ -78,14 +78,14 @@ router.put(
   upload.single('postImage'),
   PostValidator.updatePost,
   Responder(PostController.updatePost)
-); // TODO: add validator of id and of all field needed
+);
 
-router.post('/:id/share', PostValidator.sharePost, Responder(PostController.sharePost)); // TODO: add validator to see that the user is not the author and that has not been shared
+router.post('/:id/share', PostValidator.sharePost, Responder(PostController.sharePost)); 
 
-router.post('/:id/unshare', PostValidator.unsharePost, Responder(PostController.unsharePost)); // TODO: add validator to see that the user is not the author and that the post was in fact shared by the user
+router.post('/:id/unshare', PostValidator.unsharePost, Responder(PostController.unsharePost)); 
 
-router.post('/:id/like', PostValidator.likePost, Responder(PostController.likePost)); // TODO: add validator to see that the user is not the author and that has not been liked
+router.post('/:id/like', PostValidator.likePost, Responder(PostController.likePost)); 
 
-router.post('/:id/dislike', PostValidator.dislikePost, Responder(PostController.dislikePost)); // TODO: add validator to see that the user is not the author and that the post was in fact liked by the user
+router.post('/:id/dislike', PostValidator.dislikePost, Responder(PostController.dislikePost)); 
 
 module.exports = router;
