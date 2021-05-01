@@ -47,4 +47,8 @@ export = {
       .withMessage(Errors.A39)
       .bail(),
   ],
+  search: [
+    ...paginationQuery,
+    check('q').isString().isLength({ max: 100, min: 1 }).withMessage(Errors.A0).bail(),
+  ],
 };

@@ -6,10 +6,7 @@ import FriendsValidator from '../validators/friends';
 
 const router = express.Router();
 
-router.get('/requests', 
-FriendsValidator.getRequests,
-Responder(FriendsController.getRequests));
-
+router.get('/requests', FriendsValidator.getRequests, Responder(FriendsController.getRequests));
 
 router.post(
   '/accept/:id',
@@ -30,6 +27,7 @@ router.post(
 );
 
 router.get('/suggestions', Responder(FriendsController.getFriendSuggestions));
-// router.get('/search', ...validate, search);
+
+router.get('/search', FriendsValidator.search, Responder(FriendsController.search));
 
 module.exports = router;

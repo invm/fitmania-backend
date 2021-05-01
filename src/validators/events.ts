@@ -14,6 +14,7 @@ export = {
         if (!(await postOwner(value, req.user._id))) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A14)
       .bail()
@@ -24,6 +25,7 @@ export = {
         if (new Date(req?.event?.startDate).getTime() < new Date().getTime()) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A32)
       .bail(),
@@ -37,6 +39,7 @@ export = {
         if (!event?.rejectedParticipants?.includes(val.toString())) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A33),
   ],
@@ -48,6 +51,7 @@ export = {
         if (!(await postOwner(value, req.user._id))) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A14)
       .bail()
@@ -58,6 +62,7 @@ export = {
         if (new Date(req?.event?.startDate).getTime() < new Date().getTime()) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A32)
       .bail(),
@@ -71,6 +76,7 @@ export = {
         if (!event?.pendingApprovalParticipants?.includes(val.toString())) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A34),
   ],
@@ -81,6 +87,7 @@ export = {
         if (!(await postOwner(value, req.user._id))) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A14)
       .bail()
@@ -91,6 +98,7 @@ export = {
         if (new Date(req?.event?.startDate).getTime() < new Date().getTime()) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A32)
       .bail(),
@@ -104,6 +112,7 @@ export = {
         if (!event?.pendingApprovalParticipants?.includes(val.toString())) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A34),
   ],
@@ -135,12 +144,14 @@ export = {
         ) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A30)
       .custom((_, { req }) => {
         if (new Date(req.event.startDate).getTime() < new Date().getTime()) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A32),
   ],

@@ -1,5 +1,16 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
+
+export interface IGroup {
+  title?: string;
+  sport?: string;
+  description?: string;
+  admin?: string;
+  users?: string[];
+  created_at?: Date;
+}
+
+export interface IGroupDoc extends mongoose.Document, IGroup {}
 
 const GroupSchema = new Schema(
   {
@@ -9,15 +20,7 @@ const GroupSchema = new Schema(
     },
     sport: {
       type: String,
-      enum: [
-        'Running',
-        'Biking',
-        'Soccer',
-        'Basketball',
-        'Rugby',
-        'Hiking',
-        'Tennis',
-      ],
+      enum: ['Running', 'Biking', 'Soccer', 'Basketball', 'Rugby', 'Hiking', 'Tennis'],
       default: 'Running',
     },
     description: {
@@ -40,5 +43,5 @@ const GroupSchema = new Schema(
   }
 );
 
-const Group = mongoose.model('group', GroupSchema);
-export = Group;
+const Group = mongoose.model<IGroupDoc>('group', GroupSchema);
+export default Group;

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { sportEnum } from '.';
 const Schema = mongoose.Schema;
 
 const pointSchema = new mongoose.Schema(
@@ -37,7 +38,7 @@ const EventSchema = new Schema(
     startDate: { type: Date, required: true },
     eventType: {
       type: String,
-      enum: ['Running', 'Biking', 'Soccer', 'Basketball', 'Rugby', 'Hiking', 'Tennis'],
+      enum: sportEnum,
       default: 'Running',
     },
     initiator: {

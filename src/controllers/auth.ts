@@ -1,4 +1,6 @@
 import UserDBService from '../services/User';
+import GroupsDBService from '../services/Group';
+import PostsDBService from '../services/Posts';
 import emailServices from '../services/emailService';
 import nconf from 'nconf';
 import { NextFunction, Request, Response } from 'express';
@@ -19,7 +21,7 @@ const path = require('path');
 
 let pathNameRegex = /(?<=media\/).*/;
 
-const sendOTP = async (req: Request, res: Response) => {
+const sendOTP = async (req: Request) => {
   const { email } = req.body;
   let token = generateOTP();
   let expirationDate = new Date(
@@ -45,7 +47,7 @@ const sendOTP = async (req: Request, res: Response) => {
   };
 };
 
-const login = async (req: Request, res: Response) => {
+const login = async (req: Request) => {
   const { email, otp } = req.body;
   let user = await UserDBService.getUser({
     filter: { email },
@@ -66,7 +68,7 @@ const login = async (req: Request, res: Response) => {
   }
 };
 
-const register = async (req: Request, res: Response) => {
+const register = async (req: Request) => {
   const { email, name, lastname } = req.body;
   let user = await UserDBService.createUser({ email, name, lastname });
   let token = generateOTP();
@@ -93,30 +95,33 @@ const register = async (req: Request, res: Response) => {
   };
 };
 
-const logout = async (req: Request, res: Response) => {
+const logout = async (req: Request) => {
   req.session.destroy(() => {}); // removes the session from the DB
   req.logout(); // logs the user out
 };
 
-const verifyAuth = async (req: Request, res: Response) => {
+const verifyAuth = async (req: Request) => {
   let data = await UserDBService.getUser({ filter: { _id: req.user._id } });
 
-  // TODO: add users groups
+  let groups = await GroupsDBService.getGroups({
+    filter: { users: req.user._id },
+    offset: 0,
+    limit: 10,
+  });
   let user = {
     ...data,
-    groups: [''],
+    groups,
   };
 
   return { data: user };
-}; 
-
-const getUser = async (req: Request, res: Response, next: NextFunction) => {
-  let user = await UserDBService.getUser({ filter: { _id: req.params.id } });
-  // TODO: add posts
-  return { data: { posts: [''], user } };
 };
 
-const updateUser = async (req: Request, res: Response, next: NextFunction) => {
+const getUser = async (req: Request) => {
+  let data = await UserDBService.getUser({ filter: { _id: req.params.id } });
+  return { data };
+};
+
+const updateUser = async (req: Request) => {
   if (String(req.params.id) === String(req.user?._id)) {
     const { name, email, preferable, undesirable, birthday, location, lastname, image } = req.body;
 

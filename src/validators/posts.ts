@@ -23,6 +23,7 @@ export = {
         if (!(await postOwner(value, req.user._id))) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A14)
       .bail(),
@@ -36,6 +37,7 @@ export = {
         if (!(await postOwner(value, req.user._id))) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A14)
       .bail(),
@@ -55,6 +57,7 @@ export = {
       .withMessage(Errors.A0)
       .bail(),
     check('postImage').optional(),
+    check('group').optional().isString().withMessage(Errors.A0).bail(),
     check('event')
       .optional()
       .custom((obj: IEvent) => {
@@ -71,6 +74,7 @@ export = {
           throw new Error();
         }
         return true;
+        return true;
       })
       .withMessage(Errors.A16)
       .bail(),
@@ -84,6 +88,7 @@ export = {
         if (await postOwner(value, req.user._id)) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A21)
       .bail()
@@ -92,6 +97,7 @@ export = {
         if (await checkIfLiked(val, req.user._id)) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A17)
       .bail(),
@@ -105,6 +111,7 @@ export = {
         if (await postOwner(value, req.user._id)) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A21)
       .bail()
@@ -113,6 +120,7 @@ export = {
         if (!(await checkIfLiked(val, req.user._id))) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A18)
       .bail(),
@@ -126,6 +134,7 @@ export = {
         if (await postOwner(value, req.user._id)) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A21)
       .bail()
@@ -134,6 +143,7 @@ export = {
         if (await checkIfShared(val, req.user._id)) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A19)
       .bail(),
@@ -147,6 +157,7 @@ export = {
         if (await postOwner(value, req.user._id)) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A21)
       .bail()
@@ -155,6 +166,7 @@ export = {
         if (!(await checkIfShared(val, req.user._id))) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A19)
       .bail(),

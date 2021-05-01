@@ -38,7 +38,11 @@ const errors = {
   A36: 'Offset is required',
   A37: 'Limit is required',
   A38: 'There is not pending request from this user.',
-  A39: 'You are not friends with this user.'
+  A39: 'You are not friends with this user.',
+  A40: 'You are not the admin of this group.',
+  A41: 'You are already member of this group.',
+  A42: 'You are not a member of this group. ',
+  A43: 'You are the admin of the group and can not leave it.'
 };
 
 export default errors;

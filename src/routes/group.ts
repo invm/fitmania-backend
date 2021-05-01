@@ -1,29 +1,26 @@
-export {};
-const express = require('express');
-import { isAuthenticated } from '../middleware/';
-const {
-  getGroups,
-  getGroup,
-  getGroupPosts,
-  createGroup,
-  updateGroup,
-  deleteGroup,
-  joinGroup,
-  leaveGroup,
-  getFeaturedGroups,
-} = require('../controllers/group');
+import express from 'express';
+import GroupsController from '../controllers/group';
+import GroupsValidator from '../validators/group';
+import Responder from '../utils/Responder';
+
 const router = express.Router();
 
-const validate = [isAuthenticated];
+router.get('/featured', Responder(GroupsController.getFeaturedGroups));
 
-router.get('/featured', ...validate, getFeaturedGroups);
-router.get('/', ...validate, getGroups);
-router.get('/:id', ...validate, getGroup);
-router.get('/posts/:id', ...validate, getGroupPosts);
-router.post('/', ...validate, createGroup);
-router.put('/:id', ...validate, updateGroup);
-router.delete('/:id', ...validate, deleteGroup);
-router.post('/join/:id', ...validate, joinGroup);
-router.post('/leave/:id', ...validate, leaveGroup);
+router.get('/', GroupsValidator.getGroups, Responder(GroupsController.getGroups));
+
+router.get('/:id', GroupsValidator.getGroup, Responder(GroupsController.getGroup));
+
+router.get('/posts/:id', GroupsValidator.getGroupPosts, Responder(GroupsController.getGroupPosts));
+
+router.post('/', GroupsValidator.createGroup, Responder(GroupsController.createGroup));
+
+router.put('/:id', GroupsValidator.updateGroup, Responder(GroupsController.updateGroup));
+
+router.delete('/:id', GroupsValidator.deleteGroup, Responder(GroupsController.deleteGroup));
+
+router.post('/join/:id', GroupsValidator.joinGroup, Responder(GroupsController.joinGroup));
+
+router.post('/leave/:id', GroupsValidator.leaveGroup, Responder(GroupsController.leaveGroup));
 
 module.exports = router;

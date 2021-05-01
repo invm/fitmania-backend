@@ -5,7 +5,7 @@ import ENTITIES from '../models';
 import CommentsDBService from '../services/Comment';
 
 export = {
-  getComments: [entityExists(ENTITIES.post, {required: true})],
+  getComments: [entityExists(ENTITIES.post, { required: true })],
 
   createComment: [
     entityExists(ENTITIES.post, { required: true }),
@@ -22,7 +22,7 @@ export = {
   ],
 
   updateComment: [
-    entityExists(ENTITIES.post, {required: true}),
+    entityExists(ENTITIES.post, { required: true }),
     entityExists(ENTITIES.comment, { fieldName: 'commentId', required: true }),
     check('commentId')
       .custom(async (val, { req }) => {
@@ -30,6 +30,7 @@ export = {
         if (comment.user.toString() !== req.user._id.toString()) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A22),
     check('text')
@@ -45,7 +46,7 @@ export = {
   ],
 
   deleteComment: [
-    entityExists(ENTITIES.post, {required: true}),
+    entityExists(ENTITIES.post, { required: true }),
     entityExists(ENTITIES.comment, { fieldName: 'commentId', required: true }),
     check('commentId')
       .custom(async (val, { req }) => {
@@ -53,6 +54,7 @@ export = {
         if (comment.user.toString() !== req.user._id.toString()) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A22),
   ],

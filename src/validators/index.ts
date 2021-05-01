@@ -6,7 +6,7 @@ import UserDBService from '../services/User';
 import PostsDBService from '../services/Posts';
 import CommentDBService from '../services/Comment';
 import EventDBService from '../services/Events';
-import FriendsDBService from '../services/Friends';
+import GroupsDBService from '../services/Group';
 
 const paginationQuery = [
   check('offset').exists().withMessage(Errors.A36).bail(),
@@ -120,6 +120,9 @@ const entityExists = (
           break;
         case ENTITIES.event:
           exists = await EventDBService.exists(val, filter);
+          break;
+        case ENTITIES.group:
+          exists = await GroupsDBService.exists(val, filter);
           break;
         default:
           break;

@@ -45,45 +45,45 @@ const acceptRequest = async (req: Request) => {
   return { msg: 'Accepted request' };
 };
 
-// exports.search = async (req: any, res: Response, next: NextFunction) => {
-//   let query = req.query.q;
-//   if (!query) return res.status(200).json({ success: true });
-//   let user = await User.findById(req.user);
-//   let users = await User.find({
-//     $and: [
-//       {
-//         _id: {
-//           $nin: [user._id],
-//         },
-//       },
-//       {
-//         $or: [
-//           { name: { $regex: query, $options: 'i' } },
-//           { lastname: { $regex: query, $options: 'i' } },
-//           { email: { $regex: query, $options: 'i' } },
-//           { location: { $regex: query, $options: 'i' } },
-//         ],
-//       },
-//     ],
-//   }).select('avatar name lastname email location');
+const search = async (req: Request) => {
+  let { q, offset, limit } = req.query;
+  let users = await UserDBService.getUsers({
+    offset: +offset,
+    limit: +limit,
+    filter: {
+      $and: [
+        {
+          _id: {
+            $nin: [req.user._id],
+          },
+        },
+        {
+          $or: [
+            { name: { $regex: q, $options: 'i' } },
+            { lastname: { $regex: q, $options: 'i' } },
+            { email: { $regex: q, $options: 'i' } },
+            { location: { $regex: q, $options: 'i' } },
+          ],
+        },
+      ],
+    },
+    select: 'avatar name lastname email location',
+  });
 
-//   let groups = await Group.find({
-//     $and: [
-//       {
-//         $or: [
-//           { title: { $regex: query, $options: 'i' } },
-//           { description: { $regex: query, $options: 'i' } },
-//           { sport: { $regex: query, $options: 'i' } },
-//         ],
-//       },
-//     ],
-//   }).select('title sport description users');
+  // let groups = await Group.find({
+  //   $and: [
+  //     {
+  //       $or: [
+  //         { title: { $regex: q, $options: 'i' } },
+  //         { description: { $regex: q, $options: 'i' } },
+  //         { sport: { $regex: q, $options: 'i' } },
+  //       ],
+  //     },
+  //   ],
+  // }).select('title sport description users');
 
-//   return res.status(200).json({ success: true, users, groups });
-// };
-// // @desc     Get friends suggestions based on your sport preferences and location
-// // @route    GET /social/friends/suggestions
-// // @access   Private
+  return { data: { users } };
+};
 
 const getFriendSuggestions = async (req: Request) => {
   let data = await FriendsDBService.getFriendSuggestions(req.user._id);
@@ -104,4 +104,5 @@ export default {
   acceptRequest,
   getFriendSuggestions,
   getRequests,
+  search,
 };

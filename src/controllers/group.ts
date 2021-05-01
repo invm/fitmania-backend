@@ -1,15 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import Group from '../models/Group';
+import GroupDBService from '../services/Group';
+import UserDBService from '../services/User';
 import User from '../models/User';
 import Post from '../models/Post';
-const authService = require('../services/authService');
+import { IObject } from '../types/IObject';
 
-// @desc     Get groups
-// @route    GET /api/group
-// @access   Private
-
-exports.getGroups = async (req: Request, res: Response, next: NextFunction) => {
+const getGroups = async (req: Request) => {
+  let { offset, limit } = req.query;
   let filter = {};
   if (req.query.sports) {
     filter = {
@@ -18,39 +17,23 @@ exports.getGroups = async (req: Request, res: Response, next: NextFunction) => {
       },
     };
   }
-  let result = await Group.find(filter)
-    .limit(10)
-    .skip(+req.query.page * 10)
-    .populate('admin', 'name lastname avatar')
-    .populate('users', 'name lastname avatar');
-  return res.status(200).json({ result });
+  let data = await GroupDBService.getGroups({
+    filter,
+    offset: +offset,
+    limit: +limit,
+    populate: true,
+  });
+  return { data };
 };
 
-// @desc     Get group
-// @route    GET /api/group/:id
-// @access   Private
-
-exports.getGroup = async (req: Request, res: Response, next: NextFunction) => {
-  if (mongoose.Types.ObjectId.isValid(req.params.id)) {
-    let result = await Group.findOne({ _id: req.params.id })
-      .populate('admin', 'name lastname avatar')
-      .populate('users', 'name lastname avatar');
-    return res.status(200).json({ result });
-  }
-  return res.status(400).json({});
+const getGroup = async (req: Request) => {
+  let data = await GroupDBService.getGroup({ _id: req.params.id }, { populate: true });
+  return { data };
 };
 
-// @desc     Get featured groups, spits out 3 groups that match the users preferences, if less than 3 returned, gets random 3 groups.
-// @route    GET /api/group/featured
-// @access   Private
-
-exports.getFeaturedGroups = async (
-  req: any,
-  res: Response,
-  next: NextFunction
-) => {
+const getFeaturedGroups = async (req: Request) => {
   let filter = {};
-  let user = await User.findOne({ _id: req.user });
+  let user = await UserDBService.getUser({ filter: { _id: req.user._id } });
   if (user.preferable.length > 0)
     filter = {
       sport: {
@@ -58,146 +41,73 @@ exports.getFeaturedGroups = async (
       },
     };
 
-  let result = await Group.find(filter).limit(3);
-  if (result.length < 3) {
-    result = await Group.find({}).limit(3);
-  }
-  return res.status(200).json({ result });
-};
-
-// @desc     Get group posts
-// @route    GET /api/group/posts/:id
-// @access   Private
-
-exports.getGroupPosts = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  if (mongoose.Types.ObjectId.isValid(req.params.id)) {
-    let result = await Post.find({ group: req.params.id })
-      .populate('user', 'name lastname avatar')
-      .populate('event.participants', 'name lastname avatar')
-      .populate('event.initiator', 'name lastname avatar')
-      .populate('event.rejectedParticipants', 'name lastname avatar')
-      .populate('event.pendingApprovalParticipants', 'name lastname avatar')
-      .populate('comments.user', 'name lastname _id')
-      .exec();
-    return res.status(200).json({ result });
-  }
-  return res.status(400).json({});
-};
-
-// @desc     Create group
-// @route    POST /api/group
-// @access   Private
-
-exports.createGroup = async (req: any, res: Response, next: NextFunction) => {
-  if (!req.body.sport && !req.body.title) {
-    return res.status(400);
-  }
-  let result = await Group.create({
-    title: req.body.title,
-    sport: req.body.sport,
-    users: [req.user],
-    admin: req.user,
+  let data = await GroupDBService.getGroups({
+    filter,
+    offset: 0,
+    limit: 3,
+    populate: true,
   });
-  result = await Group.findOne({ _id: result._id })
-    .populate('admin', 'name lastname avatar')
-    .populate('users', 'name lastname avatar');
-  return res.status(200).json({ result });
+  return { data };
 };
 
-// @desc     Update group
-// @route    PUT /api/group
-// @access   Private
+const getGroupPosts = async (req: Request) => {
+  let data = await Post.find({ group: req.params.id })
+    .populate('user', 'name lastname avatar')
+    .populate('event.participants', 'name lastname avatar')
+    .populate('event.initiator', 'name lastname avatar')
+    .populate('event.rejectedParticipants', 'name lastname avatar')
+    .populate('event.pendingApprovalParticipants', 'name lastname avatar')
+    .populate('comments.user', 'name lastname _id')
+    .exec();
+  return { data };
+};
 
-exports.updateGroup = async (req: any, res: Response, next: NextFunction) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).json({});
-  }
-  let group = await Group.findOne({ _id: req.params.id });
-  if (!group || group.admin.toString() !== req.user.toString())
-    return res.status(400).json({});
+const createGroup = async (req: Request) => {
+  let { title, sport, description } = req.body;
+  let data = await GroupDBService.createGroup({
+    title,
+    sport,
+    description,
+    users: [req.user._id],
+    admin: req.user._id,
+  });
 
-  let updateParams: any = {};
+  return { data };
+};
+
+const updateGroup = async (req: Request) => {
+  let updateParams: IObject = {};
   if (req.body.title) updateParams.title = req.body.title;
   if (req.body.sport) updateParams.sport = req.body.sport;
+  if (req.body.description) updateParams.description = req.body.description;
 
-  await Group.updateOne(
-    {
-      _id: req.params.id,
-    },
-    {
-      $set: updateParams,
-    }
-  );
-  group = await Group.findOne({ _id: req.params.id })
-    .populate('admin', 'name lastname avatar')
-    .populate('users', 'name lastname avatar');
-
-  return res.status(200).json({ result: group });
+  let data = await GroupDBService.updateGroup(req.params.id, updateParams);
+  return { data };
 };
 
-// @desc     Delete group
-// @route    POST /api/group
-// @access   Private
-
-exports.deleteGroup = async (req: any, res: Response, next: NextFunction) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).json({});
-  }
-  let group = await Group.findOne({ _id: req.params.id });
-  if (!group || group.admin.toString() !== req.user.toString())
-    return res.status(400).json({});
-  await Group.deleteOne({ _id: req.params.id });
-  return res.status(200).json({});
+const deleteGroup = async (req: Request) => {
+  await GroupDBService.deleteGroup(req.params.id);
+  return { msg: 'Deleted group' };
 };
 
-// @desc     Join group
-// @route    POST /api/group/join/:id
-// @access   Private
-
-exports.joinGroup = async (req: any, res: Response, next: NextFunction) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).json({});
-  }
-  let group = await Group.findOne({ _id: req.params.id });
-  if (!group || group.users.includes(req.user.toString()))
-    return res.status(400).json({});
-  await Group.updateOne(
-    { _id: req.params.id },
-    {
-      $push: {
-        users: req.user,
-      },
-    }
-  );
-  return res.status(200).json({});
+const joinGroup = async (req: Request) => {
+  let data = await GroupDBService.joinGroup(req.params.id, req.user._id);
+  return { msg: 'Joined group', data };
 };
 
-// @desc     Exit group
-// @route    POST /api/group/exit/:id
-// @access   Private
+const leaveGroup = async (req: Request) => {
+  let data = await GroupDBService.leaveGroup(req.params.id, req.user._id);
+  return { msg: 'Left group', data };
+};
 
-exports.leaveGroup = async (req: any, res: Response, next: NextFunction) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).json({});
-  }
-  let group = await Group.findOne({ _id: req.params.id });
-  if (
-    !group ||
-    !group.users.includes(req.user.toString()) ||
-    group.admin.toString() === req.user.toString()
-  )
-    return res.status(400).json({});
-  await Group.updateOne(
-    { _id: req.params.id },
-    {
-      $pull: {
-        users: req.user.toString(),
-      },
-    }
-  );
-  return res.status(200).json({});
+export default {
+  getFeaturedGroups,
+  getGroups,
+  getGroup,
+  getGroupPosts,
+  createGroup,
+  updateGroup,
+  deleteGroup,
+  joinGroup,
+  leaveGroup,
 };

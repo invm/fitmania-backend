@@ -11,9 +11,9 @@ const getUser = async ({
   select = '-__v -updated_at',
   populate,
 }: {
-  filter: { [key: string]: any };
-  select?: { [key: string]: any } | string;
-  populate?: { [key: string]: any } | string;
+  filter: IObject;
+  select?: IObject | string;
+  populate?: IObject | string;
 }) => {
   let query = User.findOne(filter).select(select).lean();
 
@@ -32,9 +32,9 @@ const getUsers = async ({
 }: {
   offset?: number;
   limit?: number;
-  filter: { [key: string]: any };
-  select?: { [key: string]: any } | string;
-  populate?: { [key: string]: any } | string;
+  filter: IObject;
+  select?: IObject | string;
+  populate?: IObject | string;
   skipPagination?: boolean;
 }) => {
   let query = User.find(filter);
@@ -48,13 +48,7 @@ const getUsers = async ({
   return query;
 };
 
-const updateUser = async ({
-  filter,
-  params,
-}: {
-  filter: { [key: string]: any };
-  params: { [key: string]: any };
-}) => {
+const updateUser = async ({ filter, params }: { filter: IObject; params: IObject }) => {
   return await User.updateOne(filter, { $set: params });
 };
 

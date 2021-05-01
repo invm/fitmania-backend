@@ -31,6 +31,7 @@ export = {
         if (!user) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A2),
     check('otp').optional(),
@@ -43,6 +44,7 @@ export = {
         if (!user) {
           throw new Error();
         }
+        return true;
       })
       .withMessage(Errors.A9),
   ],
