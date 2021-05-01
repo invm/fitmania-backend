@@ -13,11 +13,13 @@ router.post(
   FriendsValidator.acceptRequest,
   Responder(FriendsController.acceptRequest)
 );
+
 router.post(
   '/reject/:id',
   FriendsValidator.rejectRequest,
   Responder(FriendsController.rejectRequest)
 );
+
 router.post('/add/:id', FriendsValidator.addFriend, Responder(FriendsController.addFriend));
 
 router.post(

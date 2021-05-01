@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import CommentsDBService from '../services/Comment';
+import CommentsDBService from '../services/Comments';
 import PostsDBService from '../services/Posts';
 
 const getComments = async (req: Request) => {

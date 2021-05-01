@@ -1,5 +1,5 @@
-import UserDBService from '../services/User';
-import GroupsDBService from '../services/Group';
+import UsersDBService from '../services/Users';
+import GroupsDBService from '../services/Groups';
 import PostsDBService from '../services/Posts';
 import emailServices from '../services/emailService';
 import nconf from 'nconf';
@@ -34,7 +34,7 @@ const sendOTP = async (req: Request) => {
     },
   };
 
-  await UserDBService.updateUser({ filter: { email }, params });
+  await UsersDBService.updateUser({ filter: { email }, params });
 
   // Used to prevent unwanted usage of email for testing purposes. Instead, we only log the password.
   if (process.env.CHEAPSKATE_MODE !== 'on') await emailServices.sendOTP(email, `${token}`);
@@ -49,7 +49,7 @@ const sendOTP = async (req: Request) => {
 
 const login = async (req: Request) => {
   const { email, otp } = req.body;
-  let user = await UserDBService.getUser({
+  let user = await UsersDBService.getUser({
     filter: { email },
     select: '+otpData',
   });
@@ -70,7 +70,7 @@ const login = async (req: Request) => {
 
 const register = async (req: Request) => {
   const { email, name, lastname } = req.body;
-  let user = await UserDBService.createUser({ email, name, lastname });
+  let user = await UsersDBService.createUser({ email, name, lastname });
   let token = generateOTP();
   let expirationDate = new Date(
     new Date().setMinutes(new Date().getMinutes() + nconf.get('auth:otpTimer'))
@@ -83,7 +83,7 @@ const register = async (req: Request) => {
     },
   };
 
-  await UserDBService.updateUser({ filter: { _id: user._id }, params });
+  await UsersDBService.updateUser({ filter: { _id: user._id }, params });
 
   // Used to prevent unwanted usage of email for testing purposes. Instead, we only log the password.
   if (process.env.CHEAPSKATE_MODE !== 'on') await emailServices.sendOTP(email, `${token}`);
@@ -101,7 +101,7 @@ const logout = async (req: Request) => {
 };
 
 const verifyAuth = async (req: Request) => {
-  let data = await UserDBService.getUser({ filter: { _id: req.user._id } });
+  let data = await UsersDBService.getUser({ filter: { _id: req.user._id } });
 
   let groups = await GroupsDBService.getGroups({
     filter: { users: req.user._id },
@@ -117,7 +117,7 @@ const verifyAuth = async (req: Request) => {
 };
 
 const getUser = async (req: Request) => {
-  let data = await UserDBService.getUser({ filter: { _id: req.params.id } });
+  let data = await UsersDBService.getUser({ filter: { _id: req.params.id } });
   return { data };
 };
 
@@ -162,11 +162,11 @@ const updateUser = async (req: Request) => {
 
     if (Object.keys(updateFields).length > 0) {
       try {
-        await UserDBService.updateUser({
+        await UsersDBService.updateUser({
           filter: { _id: req.user?._id },
           params: updateFields,
         });
-        let user = await UserDBService.getUser({
+        let user = await UsersDBService.getUser({
           filter: { _id: req.user?._id },
         });
         return { data: user };

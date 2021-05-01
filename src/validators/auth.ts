@@ -1,6 +1,6 @@
 import { check } from 'express-validator';
 import { Request } from 'express';
-import UserDBService from '../services/User';
+import UsersDBService from '../services/Users';
 import Errors from '../config/Errors';
 
 export = {
@@ -13,7 +13,7 @@ export = {
       .isEmail()
       .withMessage(Errors.A11)
       .custom(async (email: string) => {
-        let user = await UserDBService.getUser({ filter: { email } });
+        let user = await UsersDBService.getUser({ filter: { email } });
         if (user) {
           throw new Error(Errors.A1);
         }
@@ -27,7 +27,7 @@ export = {
       .exists()
       .withMessage(Errors.A3)
       .custom(async (email: string) => {
-        let user = await UserDBService.getUser({ filter: { email } });
+        let user = await UsersDBService.getUser({ filter: { email } });
         if (!user) {
           throw new Error();
         }
@@ -40,7 +40,7 @@ export = {
   getUser: [
     check('')
       .custom(async (_, { req }) => {
-        let user = await UserDBService.getUser({ filter: { _id: req.params.id } });
+        let user = await UsersDBService.getUser({ filter: { _id: req.params.id } });
         if (!user) {
           throw new Error();
         }

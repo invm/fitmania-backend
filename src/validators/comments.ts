@@ -2,7 +2,7 @@ import { check } from 'express-validator';
 import Errors from '../config/Errors';
 import { entityExists } from './index';
 import ENTITIES from '../models';
-import CommentsDBService from '../services/Comment';
+import CommentsDBService from '../services/Comments';
 
 export = {
   getComments: [entityExists(ENTITIES.post, { required: true })],

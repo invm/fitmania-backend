@@ -1,5 +1,17 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
+
+export interface INotification {
+  type?: 'default' | 'friendRequest';
+  title?: string;
+  body?: string;
+  from?: string;
+  to?: string;
+  read?: boolean;
+  responded?: boolean;
+}
+
+export interface INotificationDoc extends mongoose.Document, INotification {}
 
 const NotificationSchema = new Schema(
   {
@@ -16,7 +28,12 @@ const NotificationSchema = new Schema(
       type: String,
       maxlength: 200,
     },
-    user: {
+    from: {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: 'user',
+      required: true,
+    },
+    to: {
       type: mongoose.SchemaTypes.ObjectId,
       ref: 'user',
       required: true,
@@ -24,10 +41,6 @@ const NotificationSchema = new Schema(
     read: {
       type: Boolean,
       default: false,
-    },
-    friend: {
-      type: mongoose.SchemaTypes.ObjectId,
-      ref: 'user',
     },
     responded: {
       type: Boolean,
@@ -39,5 +52,5 @@ const NotificationSchema = new Schema(
   }
 );
 
-const Notification = mongoose.model('notification', NotificationSchema);
-export = Notification;
+const Notification = mongoose.model<INotificationDoc>('notification', NotificationSchema);
+export default Notification;

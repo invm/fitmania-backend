@@ -42,7 +42,8 @@ const errors = {
   A40: 'You are not the admin of this group.',
   A41: 'You are already member of this group.',
   A42: 'You are not a member of this group. ',
-  A43: 'You are the admin of the group and can not leave it.'
+  A43: 'You are the admin of the group and can not leave it.',
+  A44: 'You are not allowed to view or manipulate this notification.',
 };
 
 export default errors;

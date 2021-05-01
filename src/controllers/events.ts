@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import PostsDBService from '../services/Posts';
 import EventsDBService from '../services/Events';
-import UsersDBService from '../services/User';
+import UsersDBService from '../services/Users';
 
 const removeFromRejectedList = async (req: Request) => {
   let post = await PostsDBService.getPost({ _id: req.params.id });

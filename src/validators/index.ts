@@ -2,11 +2,12 @@ import { check } from 'express-validator';
 import Errors from '../config/Errors';
 import { IObject } from '../types/IObject';
 import ENTITIES from '../models';
-import UserDBService from '../services/User';
+import UsersDBService from '../services/Users';
 import PostsDBService from '../services/Posts';
-import CommentDBService from '../services/Comment';
+import CommentsDBService from '../services/Comments';
 import EventDBService from '../services/Events';
-import GroupsDBService from '../services/Group';
+import GroupsDBService from '../services/Groups';
+import NotificationsDBService from '../services/Notifications';
 
 const paginationQuery = [
   check('offset').exists().withMessage(Errors.A36).bail(),
@@ -110,19 +111,22 @@ const entityExists = (
       let exists;
       switch (entity) {
         case ENTITIES.user:
-          exists = await UserDBService.exists(val, filter);
+          exists = await UsersDBService.exists(val, filter);
           break;
         case ENTITIES.post:
           exists = await PostsDBService.exists(val, filter);
           break;
         case ENTITIES.comment:
-          exists = await CommentDBService.exists(val, filter);
+          exists = await CommentsDBService.exists(val, filter);
           break;
         case ENTITIES.event:
           exists = await EventDBService.exists(val, filter);
           break;
         case ENTITIES.group:
           exists = await GroupsDBService.exists(val, filter);
+          break;
+        case ENTITIES.notification:
+          exists = await NotificationsDBService.exists(val, filter);
           break;
         default:
           break;

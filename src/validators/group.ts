@@ -2,7 +2,7 @@ import { check } from 'express-validator';
 import { entityExists, paginationQuery } from '.';
 import Errors from '../config/Errors';
 import ENTITIES, { sportEnum } from '../models';
-import GroupsDBService from '../services/Group';
+import GroupsDBService from '../services/Groups';
 
 export = {
   getGroups: [

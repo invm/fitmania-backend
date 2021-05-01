@@ -1,21 +1,36 @@
-export {};
-const express = require('express');
-const {
-	getNotifications,
-	getSingleNotification,
-	markAsRead,
-	deleteNotification,
-	getNotificationsCount,
-} = require('../controllers/notifications');
-const { validateReq, isAuthenticated } = require('../middleware/validators');
+import express from 'express';
+import Responder from '../utils/Responder';
+import NotificationsController from '../controllers/notifications';
+import NotificationsValidator from '../validators/notifications';
 const router = express.Router();
 
-const validate = [isAuthenticated, validateReq];
+router.get(
+  '/count',
+  Responder(NotificationsController.getNotificationsCount)
+);
 
-router.get('/count', ...validate, getNotificationsCount);
-router.get('/list', ...validate, getNotifications);
-router.get('/single/:id', ...validate, getSingleNotification);
-router.post('/read/:id', ...validate, markAsRead);
-router.delete('/delete/:id', ...validate, deleteNotification);
+router.get(
+  '/list',
+  NotificationsValidator.getNotifications,
+  Responder(NotificationsController.getNotifications)
+);
+
+router.get(
+  '/single/:id',
+  NotificationsValidator.getSingleNotification,
+  Responder(NotificationsController.getSingleNotification)
+);
+
+router.post(
+  '/read/:id',
+  NotificationsValidator.markAsRead,
+  Responder(NotificationsController.markAsRead)
+);
+
+router.delete(
+  '/delete/:id',
+  NotificationsValidator.deleteNotification,
+  Responder(NotificationsController.deleteNotification)
+);
 
 module.exports = router;

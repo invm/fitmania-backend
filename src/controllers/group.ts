@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import Group from '../models/Group';
-import GroupDBService from '../services/Group';
-import UserDBService from '../services/User';
+import GroupDBService from '../services/Groups';
+import UsersDBService from '../services/Users';
 import User from '../models/User';
 import Post from '../models/Post';
 import { IObject } from '../types/IObject';
@@ -33,7 +33,7 @@ const getGroup = async (req: Request) => {
 
 const getFeaturedGroups = async (req: Request) => {
   let filter = {};
-  let user = await UserDBService.getUser({ filter: { _id: req.user._id } });
+  let user = await UsersDBService.getUser({ filter: { _id: req.user._id } });
   if (user.preferable.length > 0)
     filter = {
       sport: {

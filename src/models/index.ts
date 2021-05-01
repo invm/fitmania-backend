@@ -5,10 +5,11 @@ const ENTITIES = {
   event: 'Event',
   group: 'Group',
   friendRequest: 'FriendRequest',
+  notification: 'Notification',
 };
 
 export const displayEnum = ['all', 'friends'];
 
-export const sportEnum = ['Running', 'Biking', 'Soccer', 'Basketball', 'Rugby', 'Hiking', 'Tennis']
+export const sportEnum = ['Running', 'Biking', 'Soccer', 'Basketball', 'Rugby', 'Hiking', 'Tennis'];
 
 export default ENTITIES;

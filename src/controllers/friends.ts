@@ -1,21 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
-import User from '../models/User';
-import Notification from '../models/Notification';
-import Group from '../models/Group';
 import FriendsDBService from '../services/Friends';
-import UserDBService from '../services/User';
+import UsersDBService from '../services/Users';
+import NotificationsDBService from '../services/Notifications';
 
 const addFriend = async (req: Request) => {
   await FriendsDBService.askToBefriend(req.user._id, req.params.id);
 
-  // TODO: create notification
-  // await Notification.create({
-  //   user: req.params.id,
-  //   type: 'friend',
-  //   friend: req.user._id,
-  //   title: 'New friend request!',
-  //   body: `You've received a new friend request from ${req.params.name}.`,
-  // });
+  await NotificationsDBService.createNotification({
+    from: req.params.id,
+    type: 'friendRequest',
+    to: req.user._id,
+    title: 'New friend request!',
+    body: `You've received a new friend request from ${req.params.name}.`,
+  });
 
   return { msg: 'Request sent' };
 };
@@ -28,26 +25,26 @@ const removeFriend = async (req: Request) => {
 const rejectRequest = async (req: Request) => {
   await FriendsDBService.rejectRequest(req.params.id, req.user._id);
 
-  await Notification.updateOne(
-    { _id: req.body.notificationId },
-    {
-      responded: true,
-      read: true,
-    }
-  );
-
   return { msg: 'Request rejected' };
 };
 
 const acceptRequest = async (req: Request) => {
   await FriendsDBService.acceptRequest(req.params.id, req.user._id);
 
+  await NotificationsDBService.createNotification({
+    from: req.user._id,
+    type: 'friendRequest',
+    to: req.params.id,
+    title: 'New friend request!',
+    body: `You are now friends with ${req.user?.name} ${req.user?.lastname}.`,
+  });
+
   return { msg: 'Accepted request' };
 };
 
 const search = async (req: Request) => {
   let { q, offset, limit } = req.query;
-  let users = await UserDBService.getUsers({
+  let users = await UsersDBService.getUsers({
     offset: +offset,
     limit: +limit,
     filter: {

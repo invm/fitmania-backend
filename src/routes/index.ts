@@ -13,6 +13,6 @@ router.use('/friends', require('./friends'));
 
 router.use('/group', require('./group'));
 
-// router.use('/notifications', require('./notifications'));
+router.use('/notifications', require('./notifications'));
 
 module.exports = router;

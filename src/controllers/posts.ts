@@ -4,7 +4,7 @@ import User from '../models/User';
 import PostsDBService from '../services/Posts';
 import EventsDBService from '../services/Events';
 import FriendsDBService from '../services/Friends';
-import CommentsDBService from '../services/Comment';
+import CommentsDBService from '../services/Comments';
 import { IObject } from '../types/IObject';
 import compress from '../utils/compress';
 
