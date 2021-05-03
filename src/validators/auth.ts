@@ -1,5 +1,4 @@
 import { check } from 'express-validator';
-import { Request } from 'express';
 import UsersDBService from '../services/Users';
 import Errors from '../config/Errors';
 
@@ -35,17 +34,5 @@ export = {
       })
       .withMessage(Errors.A2),
     check('otp').optional(),
-  ],
-
-  getUser: [
-    check('')
-      .custom(async (_, { req }) => {
-        let user = await UsersDBService.getUser({ filter: { _id: req.params.id } });
-        if (!user) {
-          throw new Error();
-        }
-        return true;
-      })
-      .withMessage(Errors.A9),
   ],
 };

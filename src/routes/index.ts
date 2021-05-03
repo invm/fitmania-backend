@@ -7,6 +7,8 @@ router.use('/auth', require('./auth'));
 
 router.use(isAuthenticated);
 
+router.use('/user', require('./user'));
+
 router.use('/posts', require('./posts'));
 
 router.use('/friends', require('./friends'));

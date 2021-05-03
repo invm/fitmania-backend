@@ -172,7 +172,12 @@ const checkIfLiked = async (_id: string, userId: string) => {
   return Post.findOne({ _id, likes: userId });
 };
 
+const count = async (filter: IObject) => {
+  return Post.countDocuments(filter);
+};
+
 export default {
+  count,
   exists,
   getPost,
   getPosts,

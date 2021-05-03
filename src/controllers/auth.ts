@@ -1,9 +1,8 @@
 import UsersDBService from '../services/Users';
 import GroupsDBService from '../services/Groups';
-import PostsDBService from '../services/Posts';
-import emailServices from '../services/emailService';
+import EmailService from '../services/third-party/sendgrid';
 import nconf from 'nconf';
-import { NextFunction, Request, Response } from 'express';
+import { Request } from 'express';
 import Errors from '../config/Errors';
 
 const generateOTP = () => {
@@ -15,11 +14,6 @@ const generateOTP = () => {
 
   return token;
 };
-
-const sharp = require('sharp');
-const path = require('path');
-
-let pathNameRegex = /(?<=media\/).*/;
 
 const sendOTP = async (req: Request) => {
   const { email } = req.body;
@@ -37,7 +31,7 @@ const sendOTP = async (req: Request) => {
   await UsersDBService.updateUser({ filter: { email }, params });
 
   // Used to prevent unwanted usage of email for testing purposes. Instead, we only log the password.
-  if (process.env.CHEAPSKATE_MODE !== 'on') await emailServices.sendOTP(email, `${token}`);
+  if (process.env.CHEAPSKATE_MODE !== 'on') await EmailService.sendOTP(email, `${token}`);
   else {
     console.log(`Cheapskate mode is on, the generated OTP for authentication is: ${token}`);
   }
@@ -86,7 +80,7 @@ const register = async (req: Request) => {
   await UsersDBService.updateUser({ filter: { _id: user._id }, params });
 
   // Used to prevent unwanted usage of email for testing purposes. Instead, we only log the password.
-  if (process.env.CHEAPSKATE_MODE !== 'on') await emailServices.sendOTP(email, `${token}`);
+  if (process.env.CHEAPSKATE_MODE !== 'on') await EmailService.sendOTP(email, `${token}`);
   else {
     console.log(`Cheapskate mode is on, the generated OTP for authentication is: ${token}`);
   }
@@ -116,76 +110,10 @@ const verifyAuth = async (req: Request) => {
   return { data: user };
 };
 
-const getUser = async (req: Request) => {
-  let data = await UsersDBService.getUser({ filter: { _id: req.params.id } });
-  return { data };
-};
-
-const updateUser = async (req: Request) => {
-  if (String(req.params.id) === String(req.user?._id)) {
-    const { name, email, preferable, undesirable, birthday, location, lastname, image } = req.body;
-
-    const updateFields: any = {};
-    if (name) updateFields.name = name;
-    if (email) updateFields.email = email;
-    if (preferable) updateFields.preferable = JSON.parse(preferable);
-    if (undesirable) updateFields.undesirable = JSON.parse(undesirable);
-    if (birthday) updateFields.birthday = birthday;
-    if (location) updateFields.location = location;
-    if (lastname) updateFields.lastname = lastname;
-
-    if (image) {
-      updateFields.image = image;
-
-      let compressedImagePath = req.file
-        ? path.join(
-            __dirname,
-            '../',
-            'media',
-            `${req.user}`,
-            new Date().toISOString() + req.file.originalname
-          )
-        : '';
-      if (req.file) {
-        sharp(req.file.path)
-          .resize(1000)
-          .jpeg({
-            quality: 80,
-            chromaSubsampling: '4:4:4',
-          })
-          .toFile(compressedImagePath, (err: any, info: any) => {
-            if (err) console.log(err);
-          });
-        updateFields.avatar = pathNameRegex.exec(compressedImagePath)[0];
-      }
-    }
-
-    if (Object.keys(updateFields).length > 0) {
-      try {
-        await UsersDBService.updateUser({
-          filter: { _id: req.user?._id },
-          params: updateFields,
-        });
-        let user = await UsersDBService.getUser({
-          filter: { _id: req.user?._id },
-        });
-        return { data: user };
-      } catch (error) {
-        return { errors: [{ msg: error.message }] };
-      }
-    }
-  } else
-    return {
-      msg: 'Something went wrong, please try again.',
-    };
-};
-
 export default {
   logout,
   verifyAuth,
   sendOTP,
   register,
   login,
-  getUser,
-  updateUser,
 };

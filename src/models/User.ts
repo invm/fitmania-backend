@@ -10,11 +10,14 @@ export interface IUser extends mongoose.Document {
   avatar?: string;
   preferable?: string[];
   undesirable?: string[];
+  fcmToken?: string;
   otpData?: {
     token: string;
     expirationDate: Date;
   };
 }
+
+export interface IUserDoc extends mongoose.Document, IUser {}
 
 const UserSchema = new Schema(
   {
@@ -40,6 +43,7 @@ const UserSchema = new Schema(
     },
     preferable: [String],
     undesirable: [String],
+    fcmToken: String,
     otpData: {
       select: false,
       type: {
@@ -60,5 +64,5 @@ const UserSchema = new Schema(
 
 UserSchema.index({ location: 'text' }, { weights: { location: 5 } });
 
-const User = mongoose.model<IUser>('user', UserSchema);
+const User = mongoose.model<IUserDoc>('user', UserSchema);
 export default User;

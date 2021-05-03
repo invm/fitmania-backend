@@ -1,20 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import Post, { IPost } from '../models/Post';
-import User from '../models/User';
 import PostsDBService from '../services/Posts';
 import EventsDBService from '../services/Events';
 import FriendsDBService from '../services/Friends';
 import CommentsDBService from '../services/Comments';
+import UsersDBService from '../services/Users';
 import { IObject } from '../types/IObject';
 import compress from '../utils/compress';
 
-// @desc     Get statistics
-// @route    GET /api/posts/statistics
-// @access   Public
-
-exports.getStatistics = async (req: Request, res: Response, next: NextFunction) => {
-  let posts: any = await Post.countDocuments();
-  let users: any = await User.countDocuments();
+const getStatistics = async (req: Request) => {
+  let users = await UsersDBService.count({});
+  let posts = await PostsDBService.count({});
   let result = {
     posts: posts,
     users: users,
@@ -22,11 +18,7 @@ exports.getStatistics = async (req: Request, res: Response, next: NextFunction) 
   return { data: result };
 };
 
-// @desc     Get all posts
-// @route    GET /api/posts
-// @access   Private
-
-const getPosts = async (req: Request, res: Response, next: NextFunction) => {
+const getPosts = async (req: Request) => {
   const { offset, limit } = req.query;
   let friends = await FriendsDBService.getFriends(req.user._id);
 
@@ -67,7 +59,7 @@ const getPosts = async (req: Request, res: Response, next: NextFunction) => {
   return { data: posts };
 };
 
-const getUsersPosts = async (req: Request, res: Response, next: NextFunction) => {
+const getUsersPosts = async (req: Request) => {
   const friends = await FriendsDBService.getFriends(req.params.id);
   const { offset, limit } = req.query;
 
@@ -100,11 +92,7 @@ const getUsersPosts = async (req: Request, res: Response, next: NextFunction) =>
   return { data: posts };
 };
 
-// @desc     Get a single post
-// @route    GET /api/posts/:id
-// @access   Private
-
-const getPost = async (req: Request, res: Response, next: NextFunction) => {
+const getPost = async (req: Request) => {
   let post = await PostsDBService.getPost(
     {
       _id: req.params.id,
@@ -118,11 +106,7 @@ const getPost = async (req: Request, res: Response, next: NextFunction) => {
   return { data: post };
 };
 
-// @desc     Create new post
-// @route    POST /api/posts
-// @access   Private
-
-const createPost = async (req: Request, res: Response, next: NextFunction) => {
+const createPost = async (req: Request) => {
   let { text, isEvent, group, display } = req.body;
   let postData: IPost = {
     author: req.user._id,
@@ -171,12 +155,8 @@ const createPost = async (req: Request, res: Response, next: NextFunction) => {
   return { data: post };
 };
 
-// @desc     Update post
-// @route    PUT /api/posts/:id
-// @access   Private
-
-const updatePost = async (req: Request, res: Response, next: NextFunction) => {
-  let updateFields: any = {};
+const updatePost = async (req: Request) => {
+  let updateFields: IObject = {};
   if (req.body.text) updateFields.text = req.body.text;
   if (Object.keys(updateFields).length > 0) {
     await PostsDBService.updatePost(req.params.id, updateFields);
@@ -194,11 +174,7 @@ const updatePost = async (req: Request, res: Response, next: NextFunction) => {
   };
 };
 
-// @desc     Delete post
-// @route    Delete /api/posts/:id
-// @access   Private
-
-const deletePost = async (req: Request, res: Response, next: NextFunction) => {
+const deletePost = async (req: Request) => {
   let post = await PostsDBService.getPost({ _id: req.params.id });
   if (post.event) await EventsDBService.deleteEvent(post.event);
   if (post.comments.length) await CommentsDBService.deletePostsComments(post._id);
@@ -207,35 +183,19 @@ const deletePost = async (req: Request, res: Response, next: NextFunction) => {
   return { msg: 'Removed post' };
 };
 
-// @desc     Share post
-// @route    POST /api/posts/:id
-// @access   Private
-
-const sharePost = async (req: Request, res: Response, next: NextFunction) => {
+const sharePost = async (req: Request) => {
   await PostsDBService.sharePost(req.params.id, req.user._id);
 };
 
-// // @desc     Unshare post
-// // @route    POST /api/posts/:id
-// // @access   Private
-
-const unsharePost = async (req: Request, res: Response, next: NextFunction) => {
+const unsharePost = async (req: Request) => {
   await PostsDBService.unsharePost(req.params.id, req.user._id);
 };
 
-// // @desc     Like post
-// // @route    POST /api/posts/:id/like
-// // @access   Private
-
-const likePost = async (req: Request, res: Response, next: NextFunction) => {
+const likePost = async (req: Request) => {
   await PostsDBService.likePost(req.params.id, req.user._id);
 };
 
-// @desc     Dislike post
-// @route    POST /api/posts/:id/dislike
-// @access   Private
-
-const dislikePost = async (req: Request, res: Response, next: NextFunction) => {
+const dislikePost = async (req: Request) => {
   await PostsDBService.unlikePost(req.params.id, req.user._id);
 };
 
@@ -250,4 +210,5 @@ export default {
   unsharePost,
   likePost,
   dislikePost,
+  getStatistics,
 };

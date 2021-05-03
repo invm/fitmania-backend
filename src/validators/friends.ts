@@ -14,7 +14,6 @@ export = {
       })
       .withMessage(Errors.A38)
       .bail(),
-    // TODO: check for notification id and add notification state change in controller
   ],
   rejectRequest: [
     check('id')

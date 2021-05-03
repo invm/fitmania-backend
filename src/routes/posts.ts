@@ -9,8 +9,7 @@ import PostValidator from '../validators/posts';
 import CommentsValidator from '../validators/comments';
 import EventsValidator from '../validators/events';
 
-// TODO:
-// router.get('/statistics', getStatistics);
+router.get('/statistics', Responder(PostController.getStatistics));
 
 router.post(
   '/:id/event/remove-from-rejected/:user',
@@ -66,7 +65,7 @@ router.get('/', PostValidator.getPosts, Responder(PostController.getPosts));
 
 router.get('/:id', PostValidator.getPost, Responder(PostController.getPost));
 
-router.delete('/:id', PostValidator.deletePost, Responder(PostController.deletePost)); 
+router.delete('/:id', PostValidator.deletePost, Responder(PostController.deletePost));
 
 router.post(
   '/',
@@ -82,12 +81,12 @@ router.put(
   Responder(PostController.updatePost)
 );
 
-router.post('/:id/share', PostValidator.sharePost, Responder(PostController.sharePost)); 
+router.post('/:id/share', PostValidator.sharePost, Responder(PostController.sharePost));
 
-router.post('/:id/unshare', PostValidator.unsharePost, Responder(PostController.unsharePost)); 
+router.post('/:id/unshare', PostValidator.unsharePost, Responder(PostController.unsharePost));
 
-router.post('/:id/like', PostValidator.likePost, Responder(PostController.likePost)); 
+router.post('/:id/like', PostValidator.likePost, Responder(PostController.likePost));
 
-router.post('/:id/dislike', PostValidator.dislikePost, Responder(PostController.dislikePost)); 
+router.post('/:id/dislike', PostValidator.dislikePost, Responder(PostController.dislikePost));
 
 module.exports = router;

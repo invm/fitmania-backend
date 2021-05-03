@@ -49,7 +49,7 @@ const getUsers = async ({
 };
 
 const updateUser = async ({ filter, params }: { filter: IObject; params: IObject }) => {
-  return await User.updateOne(filter, { $set: params });
+  return User.updateOne(filter, { $set: params });
 };
 
 const createUser = async ({
@@ -61,11 +61,15 @@ const createUser = async ({
   name: string;
   lastname: string;
 }) => {
-  return await User.create({
+  return User.create({
     name,
     email,
     lastname,
   });
 };
 
-export default { exists, getUser, getUsers, updateUser, createUser };
+const count = async (filter: IObject) => {
+  return User.countDocuments(filter);
+};
+
+export default { exists, getUser, getUsers, updateUser, createUser, count };
