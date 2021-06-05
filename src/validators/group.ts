@@ -16,8 +16,6 @@ export = {
     check('sport')
       .isString()
       .custom((val) => {
-        console.log('sportEnum.includes(val)', sportEnum.includes(val));
-
         if (!sportEnum.includes(val)) {
           throw new Error();
         }

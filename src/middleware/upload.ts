@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
     cb(null, uploadPath);
   },
   filename: function (req: any, file: any, cb: any) {
-    cb(null, file.originalname);
+    cb(null, `${new Date().toISOString()}${file.originalname}`);
   },
 });
 
@@ -45,4 +45,4 @@ const upload = multer({
   fileFilter: fileFilter, // Apply filter
 });
 
-export default upload
+export default upload;

@@ -2,10 +2,10 @@
   "name": "fitmatnia",
   "version": "0.1.0",
   "description": "",
-  "main": "dist/src/server.js",
+  "main": "dist/src/index.js",
   "scripts": {
-    "server": "nodemon src/server.ts",
-    "dev": "concurrently \"npm run server\"",
+    "start": "nodemon src/index.ts",
+    "dev": "concurrently \"npm start\"",
     "populate-users": "ts-node ./src/utils/seed/users.ts -- 5",
     "populate-posts": "ts-node ./src/utils/seed/posts.ts -- 5",
     "build": "tsc -p ."
@@ -22,7 +22,6 @@
     "express-session": "^1.17.1",
     "express-validator": "^6.4.0",
     "faker": "^5.4.0",
-    "file-loader": "^6.2.0",
     "firebase-admin": "^9.7.0",
     "helmet": "^3.22.0",
     "lodash": "^4.17.21",
@@ -31,8 +30,7 @@
     "nconf": "^0.10.0",
     "passport": "^0.4.1",
     "request": "^2.88.2",
-    "sharp": "^0.25.1",
-    "url-loader": "^4.1.1"
+    "sharp": "^0.25.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.6",

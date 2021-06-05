@@ -1,15 +1,17 @@
 import chalk from 'chalk';
-import mongoose from 'mongoose';
-const { MONGO_HOST, MONGO_PORT, MONGO_USER, MONGO_PASS, MONGO_DB } = process.env;
-const mongoURI = `mongodb://${MONGO_USER}:${MONGO_PASS}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}?authSource=admin`;
-const safeURI = `mongodb://${MONGO_USER}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}`;
+import mongoose, { ConnectionOptions } from 'mongoose';
+const { MONGO_HOST, MONGO_PORT, MONGO_USER, MONGO_PASS, MONGO_DB, MONGO_STR, MONGO_QUERY } =
+  process.env;
+const HOST = MONGO_HOST + MONGO_PORT;
+const mongoURI = `${MONGO_STR}://${MONGO_USER}:${MONGO_PASS}@${HOST}/${MONGO_DB}${MONGO_QUERY}`;
+const safeURI = `${MONGO_STR}://${HOST}/${MONGO_DB}${MONGO_QUERY}`;
 
-let connectionOptions = {
+let connectionOptions: ConnectionOptions = {
   useCreateIndex: true,
   useUnifiedTopology: true,
   useNewUrlParser: true,
   useFindAndModify: false,
-  poolSize: 10, // Maintain up to 10 socket connections
+  connectTimeoutMS: 30000,
 };
 
 console.log(`Attempting to connect to ${safeURI}`);

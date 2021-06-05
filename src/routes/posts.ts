@@ -74,12 +74,7 @@ router.post(
   Responder(PostController.createPost)
 );
 
-router.put(
-  '/:id',
-  upload.single('postImage'),
-  PostValidator.updatePost,
-  Responder(PostController.updatePost)
-);
+router.patch('/:id', PostValidator.updatePost, Responder(PostController.updatePost));
 
 router.post('/:id/share', PostValidator.sharePost, Responder(PostController.sharePost));
 

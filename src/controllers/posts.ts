@@ -99,7 +99,12 @@ const getPost = async (req: Request) => {
     },
     {
       select: '-__v -updated_at',
-      populate: { author: true, comments: true, event: true, populateEventUsers: true },
+      populate: {
+        author: true,
+        comments: true,
+        event: true,
+        populateEventUsers: true,
+      },
     }
   );
 
@@ -107,7 +112,7 @@ const getPost = async (req: Request) => {
 };
 
 const createPost = async (req: Request) => {
-  let { text, isEvent, group, display } = req.body;
+  let { text, group, display } = req.body;
   let postData: IPost = {
     author: req.user._id,
     display,
@@ -144,7 +149,12 @@ const createPost = async (req: Request) => {
         },
         {
           select: '-__v -updated_at',
-          populate: { author: true, comments: true, event: true, populateEventUsers: true },
+          populate: {
+            author: true,
+            comments: true,
+            event: true,
+            populateEventUsers: true,
+          },
         }
       );
       return { data: post };
@@ -168,7 +178,12 @@ const updatePost = async (req: Request) => {
       },
       {
         select: '-__v -updated_at',
-        populate: { author: true, comments: true, event: true, populateEventUsers: true },
+        populate: {
+          author: true,
+          comments: true,
+          event: true,
+          populateEventUsers: true,
+        },
       }
     ),
   };

@@ -45,6 +45,11 @@ const morganChalk = morgan(function (tokens: any, req: any, res: any) {
 app.use(morganChalk);
 
 app.use((req, res, next) => {
+  if (req.url.includes('/media/') || req.headers['api-key'] === process.env.API_KEY) next();
+  else res.status(502).send();
+});
+
+app.use((req, res, next) => {
   // @ts-ignore
   req.startTime = new Date().getTime();
   console.log('----------------------');
@@ -64,7 +69,7 @@ app.use(
   session({
     name: 'sid',
     cookie: {
-      sameSite: 'strict',
+      // sameSite: "strict",
       maxAge: nconf.get('auth:sessionTimer'),
       secure: process.env.NODE_ENV !== 'development',
       httpOnly: process.env.NODE_ENV !== 'development',
@@ -95,17 +100,8 @@ app.use(function (req: any, res: any, next: any) {
 });
 
 // Mount routes
-app.use('/api/', require('./routes/index'));
 app.use('/media', express.static(path.join(__dirname, 'media')));
-
-if (process.env.NODE_ENV === 'production') {
-  // Set static folder
-  app.use(express.static('client/dist'));
-
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '..', 'client', 'dist', 'index.html'));
-  });
-}
+app.use('/api/', require('./routes/index'));
 
 app.use(function (req, res) {
   return Respond(req, res, false, { status: 404, msg: 'Not found' });

@@ -220,9 +220,9 @@ const verifyValidation = (req: Request, res: Response) => {
       console.error(`\t - Param: '${field}'.`);
     });
 
-    let errorMessage = `An unexpected field was provided.`;
+    let errorMessage = `An unexpected field was provided - ${unvalidatedFields[0]}.`;
 
-    Respond(req, res, false, { msg: errorMessage, status: 422 });
+    Respond(req, res, false, { errors: [{ msg: errorMessage }], status: 422 });
     return false;
   }
 

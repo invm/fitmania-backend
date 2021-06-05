@@ -45,7 +45,13 @@ export = {
   ],
 
   createPost: [
-    check('text').exists().withMessage(Errors.A15).bail().isString().withMessage(Errors.A0),
+    check('text')
+      .exists()
+      .withMessage(Errors.A15)
+      .isLength({ max: 280 })
+      .bail()
+      .isString()
+      .withMessage(Errors.A0),
     check('display')
       .exists()
       .withMessage(Errors.A0)

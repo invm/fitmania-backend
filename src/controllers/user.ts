@@ -7,6 +7,11 @@ const getUser = async (req: Request) => {
   return { data };
 };
 
+const getMyProfile = async (req: Request) => {
+  let data = await UsersDBService.getUser({ filter: { _id: req.user.id } });
+  return { data };
+};
+
 const updateUser = async (req: Request) => {
   const updateFields: any = {
     ...req.body,
@@ -31,4 +36,5 @@ const updateUser = async (req: Request) => {
 export default {
   getUser,
   updateUser,
+  getMyProfile,
 };

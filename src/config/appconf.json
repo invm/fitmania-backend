@@ -4,7 +4,7 @@
   },
   "auth": {
     "otpTimer": 2,
-    "sessionTimer": 18144000000
+    "sessionTimer": 155520000000
   },
   "email": {
     "address": "imichaelionov@gmail.com"

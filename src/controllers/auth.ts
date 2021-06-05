@@ -49,16 +49,16 @@ const login = async (req: Request) => {
   });
 
   if (user.otpData.expirationDate < new Date()) {
-    return { msg: Errors.A5 };
+    return { msg: Errors.A5, status: 403 };
   } else if (otp.toString() === user.otpData.token.toString()) {
     req.login(user._id, function (err: Error) {
       if (err) {
         throw err;
       }
     });
-    return { msg: 'Successfully logged in ' };
+    return { msg: 'Successfully logged in.', status: 200, data: { _id: user._id } };
   } else {
-    return { msg: Errors.A6 };
+    return { msg: Errors.A6, status: 401 };
   }
 };
 
