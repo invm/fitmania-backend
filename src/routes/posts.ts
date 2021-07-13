@@ -11,29 +11,29 @@ import EventsValidator from '../validators/events';
 
 router.get('/statistics', Responder(PostController.getStatistics));
 
-router.post(
+router.get(
   '/:id/event/remove-from-rejected/:user',
   EventsValidator.removeFromRejectedList,
   Responder(EventController.removeFromRejectedList)
 );
-router.post(
+router.get(
   '/:id/event/ask-to-join',
   EventsValidator.askToJoinEvent,
   Responder(EventController.askToJoinEvent)
 );
-router.post(
+router.get(
   '/:id/event/allow/:user',
   EventsValidator.allowAdmitEvent,
   Responder(EventController.allowAdmitEvent)
 );
-router.post(
+router.get(
   '/:id/event/reject/:user',
   EventsValidator.rejectAdmitEvent,
   Responder(EventController.rejectAdmitEvent)
 );
 
-router.post('/:id/event/join', EventsValidator.joinEvent, Responder(EventController.joinEvent));
-router.post('/:id/event/leave', EventsValidator.leaveEvent, Responder(EventController.leaveEvent));
+router.get('/:id/event/join', EventsValidator.joinEvent, Responder(EventController.joinEvent));
+router.get('/:id/event/leave', EventsValidator.leaveEvent, Responder(EventController.leaveEvent));
 
 router.get(
   '/:id/comments',
@@ -76,12 +76,12 @@ router.post(
 
 router.patch('/:id', PostValidator.updatePost, Responder(PostController.updatePost));
 
-router.post('/:id/share', PostValidator.sharePost, Responder(PostController.sharePost));
+router.get('/:id/share', PostValidator.sharePost, Responder(PostController.sharePost));
 
-router.post('/:id/unshare', PostValidator.unsharePost, Responder(PostController.unsharePost));
+router.get('/:id/unshare', PostValidator.unsharePost, Responder(PostController.unsharePost));
 
-router.post('/:id/like', PostValidator.likePost, Responder(PostController.likePost));
+router.get('/:id/like', PostValidator.likePost, Responder(PostController.likePost));
 
-router.post('/:id/dislike', PostValidator.dislikePost, Responder(PostController.dislikePost));
+router.get('/:id/dislike', PostValidator.dislikePost, Responder(PostController.dislikePost));
 
 module.exports = router;

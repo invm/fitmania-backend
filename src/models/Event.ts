@@ -20,7 +20,6 @@ const pointSchema = new mongoose.Schema(
 export interface IEvent {
   startDate?: Date;
   eventType?: 'Running' | 'Biking' | 'Soccer' | 'Basketball' | 'Rugby' | 'Hiking' | 'Tennis';
-  initiator?: string;
   participants?: string[];
   limitParticipants?: number;
   pace?: string;
@@ -40,11 +39,6 @@ const EventSchema = new Schema(
       type: String,
       enum: sportEnum,
       default: 'Running',
-    },
-    initiator: {
-      type: mongoose.SchemaTypes.ObjectId,
-      ref: 'user',
-      required: true,
     },
     participants: [
       {

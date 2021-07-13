@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: [...process.env.ALLOWED_ORIGIN.split(',')],
+    origin: process.env.ALLOWED_ORIGIN.split(','),
     methods: 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
     credentials: true,
     allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, api-key',
@@ -60,12 +60,16 @@ app.use((req, res, next) => {
   next();
 });
 
+// if (process.env.NODE_ENV !== 'development') {
+app.set('trust proxy', 1);
+// }
 // Authentication session setup
 app.use(
   session({
-    name: 'sid',
+    name: 'sid-FitMania',
     cookie: {
-      sameSite: "none",
+      sameSite: 'none',
+      path: '/',
       maxAge: nconf.get('auth:sessionTimer'),
       secure: true,
       httpOnly: true,
@@ -76,17 +80,14 @@ app.use(
     store: new MongoStore({
       mongooseConnection: mongoose.connection,
       autoRemove: 'native', // Default
+      stringify: false, // Prevents stringification of the session data
     }),
   })
 );
 
-if (process.env.NODE_ENV !== 'development') {
-  app.set('trust proxy', 1);
-}
-
 // Passport config
-app.use(passport.initialize({ userProperty: 'user' }));
-app.use(passport.session({ pauseStream: false }));
+app.use(passport.initialize());
+app.use(passport.session());
 require('./config/passport');
 
 app.use(function (req: any, res: any, next: any) {

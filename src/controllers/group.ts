@@ -54,7 +54,6 @@ const getGroupPosts = async (req: Request) => {
   let data = await Post.find({ group: req.params.id })
     .populate('user', 'name lastname avatar')
     .populate('event.participants', 'name lastname avatar')
-    .populate('event.initiator', 'name lastname avatar')
     .populate('event.rejectedParticipants', 'name lastname avatar')
     .populate('event.pendingApprovalParticipants', 'name lastname avatar')
     .populate('comments.user', 'name lastname _id')

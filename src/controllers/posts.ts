@@ -138,7 +138,6 @@ const createPost = async (req: Request) => {
         ...event,
         location: { type: 'Point', coordinates },
         openEvent: +event.openEvent,
-        initiator: req.user._id,
         participants: [req.user._id],
       });
 

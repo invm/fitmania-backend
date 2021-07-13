@@ -37,7 +37,6 @@ const createPost = async (userId: string, sport: string) => {
 
   if (eventBool) {
     let limit = Math.floor(Math.random() * 7) + 2;
-    post.isEvent = true;
     post.event = {
       eventType: sport,
       participants: [userId],
@@ -48,7 +47,6 @@ const createPost = async (userId: string, sport: string) => {
       pace: 'Medium',
       startDate:
         new Date().getTime() + 3600000 * Math.floor(Math.random() * 48),
-      initiator: userId,
     };
   }
 

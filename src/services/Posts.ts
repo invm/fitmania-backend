@@ -51,10 +51,6 @@ const getPosts = async ({
           select: 'name lastname avatar',
         },
         {
-          path: 'initiator',
-          select: 'name lastname avatar',
-        },
-        {
           path: 'rejectedParticipants',
           select: 'name lastname avatar',
         },
@@ -105,10 +101,6 @@ const getPost = async (
         ? [
             {
               path: 'participants',
-              select: 'name lastname avatar',
-            },
-            {
-              path: 'initiator',
               select: 'name lastname avatar',
             },
             {

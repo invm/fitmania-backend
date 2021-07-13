@@ -4,6 +4,7 @@ import EmailService from '../services/third-party/sendgrid';
 import nconf from 'nconf';
 import { Request } from 'express';
 import Errors from '../config/Errors';
+import { createSession } from '../utils/auth';
 
 const generateOTP = () => {
   let token;
@@ -18,9 +19,7 @@ const generateOTP = () => {
 const sendOTP = async (req: Request) => {
   const { email } = req.body;
   let token = generateOTP();
-  let expirationDate = new Date(
-    new Date().setMinutes(new Date().getMinutes() + nconf.get('auth:otpTimer'))
-  );
+  let expirationDate = new Date(new Date().setMinutes(new Date().getMinutes() + nconf.get('auth:otpTimer')));
   let params = {
     otpData: {
       token,
@@ -51,11 +50,7 @@ const login = async (req: Request) => {
   if (user.otpData.expirationDate < new Date()) {
     return { msg: Errors.A5, status: 403 };
   } else if (otp.toString() === user.otpData.token.toString()) {
-    req.login(user._id, function (err: Error) {
-      if (err) {
-        throw err;
-      }
-    });
+    await createSession(req, user);
     return { msg: 'Successfully logged in.', status: 200, data: { _id: user._id } };
   } else {
     return { msg: Errors.A6, status: 401 };
@@ -66,9 +61,7 @@ const register = async (req: Request) => {
   const { email, name, lastname } = req.body;
   let user = await UsersDBService.createUser({ email, name, lastname });
   let token = generateOTP();
-  let expirationDate = new Date(
-    new Date().setMinutes(new Date().getMinutes() + nconf.get('auth:otpTimer'))
-  );
+  let expirationDate = new Date(new Date().setMinutes(new Date().getMinutes() + nconf.get('auth:otpTimer')));
   // set up the expiration date using a configured amount of minutes
   let params = {
     otpData: {

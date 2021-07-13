@@ -19,7 +19,7 @@ const getEvent = async (filter: IObject, options?: { populate: boolean }) => {
 
   if (options?.populate) {
     query.populate(
-      'initiator participants rejectedParticipants pendingApprovalParticipants',
+      'participants rejectedParticipants pendingApprovalParticipants',
       '_id name lastname avatar'
     );
   }

@@ -10,7 +10,7 @@ passport.deserializeUser(async (UserID: any, done: Function) => {
     let user = await User.findOne({ _id: UserID });
     
     if (!user) {
-      done('User does not exist', null);
+      done(null, null);
     } else {
       done(null, user);
     }
