@@ -130,13 +130,10 @@ const createPost = async (req: Request) => {
   if (req.body.event) {
     try {
       const { event } = req.body;
-      const {
-        location: { coordinates },
-      } = event;
+     
 
       let eventDoc = await EventsDBService.createEvent({
         ...event,
-        location: { type: 'Point', coordinates },
         openEvent: +event.openEvent,
         participants: [req.user._id],
       });
@@ -161,7 +158,6 @@ const createPost = async (req: Request) => {
       return { errors: [{ msg: error?.message }] };
     }
   }
-  return { data: post };
 };
 
 const updatePost = async (req: Request) => {

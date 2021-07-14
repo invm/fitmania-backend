@@ -27,7 +27,7 @@ export interface IEvent {
   rejectedParticipants?: string[];
   pendingApprovalParticipants?: string[];
   created_at?: Date;
-  location?: { type: string; coordinates: number[] };
+  // location?: { type: string; coordinates: number[] };
 }
 
 export interface IEventDoc extends mongoose.Document, IEvent {}
@@ -46,10 +46,10 @@ const EventSchema = new Schema(
         ref: 'user',
       },
     ],
-    location: {
-      type: pointSchema,
-      required: true,
-    },
+    // location: {
+    //   type: pointSchema,
+    //   required: true,
+    // },
     limitParticipants: { type: Number, required: true },
     pace: { type: String, required: true },
     openEvent: { type: Boolean, required: true, default: true },

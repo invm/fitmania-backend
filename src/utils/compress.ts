@@ -16,7 +16,7 @@ const compress = async (userId: string, file: Express.Multer.File) => {
   sharp(file.path)
     .resize(500)
     .jpeg({
-      quality: 80,
+      quality: 60,
       chromaSubsampling: '4:4:4',
     })
     .toFile(compressedImagePath, (err: any, info: any) => {

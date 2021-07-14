@@ -71,7 +71,7 @@ export = {
       .custom((obj: IEvent) => {
         if (
           !obj?.eventType ||
-          !obj?.location?.coordinates?.length ||
+          // !obj?.location?.coordinates?.length ||
           !obj.startDate ||
           obj.openEvent === undefined ||
           new Date(obj.startDate).getTime() < new Date().getTime() ||
