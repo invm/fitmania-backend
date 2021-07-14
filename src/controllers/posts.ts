@@ -33,7 +33,7 @@ const getPosts = async (req: Request) => {
 
   let sportFilter: IObject = {};
 
-  if (req.query.sports) {
+  if (req.query?.sports) {
     sportFilter['event.eventType'] = {
       $in: typeof req.query.sports === 'string' ? req.query.sports.split(',') : req.query.sports,
     };
@@ -41,8 +41,8 @@ const getPosts = async (req: Request) => {
 
   let eventFilter: IObject = {};
 
-  if (req.query?.isEvent) {
-    eventFilter.event = { $exists: !!+req.query?.isEvent };
+  if (req.query?.sports) {
+    eventFilter.event = { $exists: true };
   }
 
   let posts = await PostsDBService.getPosts({

@@ -2,15 +2,23 @@ import { IEvent } from './../models/Event';
 import { check } from 'express-validator';
 import Errors from '../config/Errors';
 import { entityExists, paginationQuery, postOwner, checkIfLiked, checkIfShared } from './index';
-import ENTITIES, { displayEnum } from '../models';
+import ENTITIES, { displayEnum, sportEnum } from '../models';
 
 export = {
   getUsersPosts: paginationQuery,
 
   getPosts: [
     ...paginationQuery,
-    check('isEvent').optional().isNumeric().withMessage(Errors.A0).bail(),
-    check('sports').optional().isString().withMessage(Errors.A0).bail(),
+    check('sports').optional().isArray().withMessage(Errors.A0).bail(),
+    check('sports.*')
+      .isString()
+      .withMessage(Errors.A0)
+      .bail()
+      .custom((val) => {
+        if (!sportEnum.includes(val)) throw new Error();
+        return true;
+      })
+      .withMessage(Errors.A0),
   ],
 
   getPost: [entityExists(ENTITIES.post, { required: true })],
@@ -45,13 +53,7 @@ export = {
   ],
 
   createPost: [
-    check('text')
-      .exists()
-      .withMessage(Errors.A15)
-      .isLength({ max: 280 })
-      .bail()
-      .isString()
-      .withMessage(Errors.A0),
+    check('text').exists().withMessage(Errors.A15).isLength({ max: 280 }).bail().isString().withMessage(Errors.A0),
     check('display')
       .exists()
       .withMessage(Errors.A0)
