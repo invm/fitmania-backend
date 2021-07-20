@@ -1,6 +1,4 @@
 import mongoose from 'mongoose';
-import { IEvent } from './Event';
-import { IUser } from './User';
 const Schema = mongoose.Schema;
 
 export interface IPost {

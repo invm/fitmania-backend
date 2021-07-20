@@ -2,7 +2,7 @@ import { IEvent } from './../models/Event';
 import { check } from 'express-validator';
 import Errors from '../config/Errors';
 import { entityExists, paginationQuery, postOwner, checkIfLiked, checkIfShared } from './index';
-import ENTITIES, { displayEnum, sportEnum } from '../models';
+import ENTITIES, { displayEnum, paceEnum, sportEnum } from '../models';
 
 export = {
   getUsersPosts: paginationQuery,
@@ -66,25 +66,28 @@ export = {
       .bail(),
     check('postImage').optional(),
     check('group').optional().isString().withMessage(Errors.A0).bail(),
-    check('event')
+    check('startDate')
       .optional()
-      .custom((obj: IEvent) => {
-        if (
-          !obj?.eventType ||
-          // !obj?.location?.coordinates?.length ||
-          !obj.startDate ||
-          obj.openEvent === undefined ||
-          new Date(obj.startDate).getTime() < new Date().getTime() ||
-          !obj.limitParticipants ||
-          +obj.limitParticipants < 2 ||
-          !obj.pace
-        ) {
-          throw new Error();
-        }
-        return true;
-        return true;
-      })
-      .withMessage(Errors.A16)
+      .toInt()
+      .isInt({ min: new Date().valueOf() + 60000 * 60 * 15 })
+      .bail(),
+    check('limitParticipants').optional().toInt().isInt({ min: 2, max: 100 }).bail(),
+    check('openEvent').optional().toBoolean().isBoolean().bail(),
+    check('eventType')
+      .optional()
+      .isString()
+      .withMessage(Errors.A0)
+      .bail()
+      .custom((val) => sportEnum.includes(val))
+      .withMessage(Errors.A0)
+      .bail(),
+    check('pace')
+      .optional()
+      .isString()
+      .withMessage(Errors.A0)
+      .bail()
+      .custom((val) => paceEnum.includes(val))
+      .withMessage(Errors.A0)
       .bail(),
   ],
 

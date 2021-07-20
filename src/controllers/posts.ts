@@ -49,7 +49,7 @@ const getPosts = async (req: Request) => {
     offset: +offset,
     limit: +limit,
     filter: {
-      $and: [{ $or: [privateFilter, publicFilter] }, eventFilter, sportFilter],
+      $and: [{ $or: [privateFilter, publicFilter] }, eventFilter],
     },
     select: '-__v -updated_at',
     populate: { author: true, comments: true, event: true },
@@ -112,7 +112,7 @@ const getPost = async (req: Request) => {
 };
 
 const createPost = async (req: Request) => {
-  let { text, group, display } = req.body;
+  let { text, group, display, eventType, limitParticipants, openEvent, pace, startDate } = req.body;
   let postData: IPost = {
     author: req.user._id,
     display,
@@ -127,33 +127,20 @@ const createPost = async (req: Request) => {
 
   let post = await PostsDBService.createPost(postData);
 
-  if (req.body.event) {
+  if (startDate && eventType && limitParticipants && openEvent !== undefined && pace) {
     try {
-      const { event } = req.body;
-     
-
       let eventDoc = await EventsDBService.createEvent({
-        ...event,
-        openEvent: +event.openEvent,
         participants: [req.user._id],
+        eventType,
+        limitParticipants,
+        openEvent,
+        pace,
+        startDate,
       });
 
       await PostsDBService.updatePost(post._id, { event: eventDoc._id });
-      post = await PostsDBService.getPost(
-        {
-          _id: post._id,
-        },
-        {
-          select: '-__v -updated_at',
-          populate: {
-            author: true,
-            comments: true,
-            event: true,
-            populateEventUsers: true,
-          },
-        }
-      );
-      return { data: post };
+
+      return;
     } catch (error) {
       return { errors: [{ msg: error?.message }] };
     }

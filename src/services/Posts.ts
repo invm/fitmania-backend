@@ -28,7 +28,7 @@ const getPosts = async ({
 }) => {
   let query = Post.find(filter)
     .skip(offset * limit)
-    .limit(limit);
+    .limit(limit)
 
   if (select) query.select(select);
 
