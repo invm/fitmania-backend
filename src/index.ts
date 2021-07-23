@@ -90,12 +90,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 require('./config/passport');
 
-app.use(function (req: any, res: any, next: any) {
-  res.locals.isAuthenticated = req.isAuthenticated();
-  // Is used to tell if the user is authenticated or not
-  next();
-});
-
 // Mount routes
 app.use('/media', express.static(path.join(__dirname, 'media')));
 app.use('/', require('./routes/index'));

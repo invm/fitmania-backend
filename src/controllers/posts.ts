@@ -112,7 +112,8 @@ const getPost = async (req: Request) => {
 };
 
 const createPost = async (req: Request) => {
-  let { text, group, display, eventType, limitParticipants, openEvent, pace, startDate } = req.body;
+  let { text, group, display, eventType, limitParticipants, openEvent, pace, startDate, address, coordinates } =
+    req.body;
   let postData: IPost = {
     author: req.user._id,
     display,
@@ -125,8 +126,6 @@ const createPost = async (req: Request) => {
 
   if (group) postData.group = group;
 
-  let post = await PostsDBService.createPost(postData);
-
   if (startDate && eventType && limitParticipants && openEvent !== undefined && pace) {
     try {
       let eventDoc = await EventsDBService.createEvent({
@@ -136,14 +135,20 @@ const createPost = async (req: Request) => {
         openEvent,
         pace,
         startDate,
+        address,
+        coordinates: {
+          type: 'Point',
+          coordinates,
+        },
       });
-
-      await PostsDBService.updatePost(post._id, { event: eventDoc._id });
+      await PostsDBService.createPost({ ...postData, event: eventDoc._id });
 
       return;
     } catch (error) {
       return { errors: [{ msg: error?.message }] };
     }
+  } else {
+    await PostsDBService.createPost(postData);
   }
 };
 

@@ -76,12 +76,7 @@ export const Respond = (
   console.log('----------------------');
 };
 
-const ServiceHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-  service: Function
-) => {
+const ServiceHandler = async (req: Request, res: Response, next: NextFunction, service: Function) => {
   if (verifyValidation(req, res)) {
     let requestSucceeded = true; // If no service was provided then the default response is positive with status 200
     let response: { [key: string]: any } = {};
@@ -190,7 +185,7 @@ const verifyValidation = (req: Request, res: Response) => {
 
     validationErrors.forEach((err) => {
       let error: Err = {
-        msg: err.msg,
+        msg: `${err.param} - ${err.msg}`,
       };
       if (err.value) error.data = err.value;
       // An error msg might not be related to a specific field

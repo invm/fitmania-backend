@@ -81,6 +81,9 @@ export = {
       .custom((val) => sportEnum.includes(val))
       .withMessage(Errors.A0)
       .bail(),
+    check('address').optional().isString().withMessage(Errors.A0).bail(),
+    check('coordinates').optional().isArray({ min: 2, max: 2 }).withMessage(Errors.A0).bail(),
+    check('coordinates.*').optional().toFloat().isFloat({ min: 0, max: 180 }).withMessage(Errors.A0).bail(),
     check('pace')
       .optional()
       .isString()

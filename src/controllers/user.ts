@@ -3,12 +3,12 @@ import { Request } from 'express';
 import compress from '../utils/compress';
 
 const getUser = async (req: Request) => {
-  let data = await UsersDBService.getUser({ filter: { _id: req.params.id } });
+  let data = await UsersDBService.getUser({ filter: { _id: req.params.id }, select: '-__v -updated_at -fcmToken' });
   return { data };
 };
 
 const getMyProfile = async (req: Request) => {
-  let data = await UsersDBService.getUser({ filter: { _id: req.user.id } });
+  let data = await UsersDBService.getUser({ filter: { _id: req.user.id }, select: '-__v -updated_at -fcmToken' });
   return { data };
 };
 

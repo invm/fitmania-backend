@@ -18,16 +18,21 @@ const pointSchema = new mongoose.Schema(
 );
 
 export interface IEvent {
-  startDate?: Date;
-  eventType?: 'Running' | 'Biking' | 'Soccer' | 'Basketball' | 'Rugby' | 'Hiking' | 'Tennis';
-  participants?: string[];
-  limitParticipants?: number;
-  pace?: string;
-  openEvent?: boolean;
+  startDate: Date;
+  eventType: 'Running' | 'Biking' | 'Soccer' | 'Basketball' | 'Rugby' | 'Hiking' | 'Tennis';
+  participants: string[];
+  limitParticipants: number;
+  pace: string;
+  openEvent: boolean;
   rejectedParticipants?: string[];
   pendingApprovalParticipants?: string[];
   created_at?: Date;
-  // location?: { type: string; coordinates: number[] };
+  coordinates: {
+    type?: 'Point';
+    coordinates: number[];
+  };
+  address: string;
+  initiator?: string;
 }
 
 export interface IEventDoc extends mongoose.Document, IEvent {}
@@ -46,10 +51,14 @@ const EventSchema = new Schema(
         ref: 'user',
       },
     ],
-    // location: {
-    //   type: pointSchema,
-    //   required: true,
-    // },
+    coordinates: {
+      type: pointSchema,
+      required: true,
+    },
+    address: {
+      type: String,
+      required: true,
+    },
     limitParticipants: { type: Number, required: true },
     pace: { type: String, required: true },
     openEvent: { type: Boolean, required: true, default: true },
