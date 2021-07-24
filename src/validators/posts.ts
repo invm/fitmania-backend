@@ -9,6 +9,7 @@ export = {
 
   getPosts: [
     ...paginationQuery,
+    check('userId').optional().isMongoId().withMessage(Errors.A0).bail(),
     check('sports').optional().isArray().withMessage(Errors.A0).bail(),
     check('sports.*')
       .isString()

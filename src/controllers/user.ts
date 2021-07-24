@@ -1,15 +1,19 @@
 import UsersDBService from '../services/Users';
+import FriendsDBService from '../services/Friends';
 import { Request } from 'express';
 import compress from '../utils/compress';
 
 const getUser = async (req: Request) => {
   let data = await UsersDBService.getUser({ filter: { _id: req.params.id }, select: '-__v -updated_at -fcmToken' });
-  return { data };
+  let friends = await FriendsDBService.getFriends(req.params.id);
+
+  return { data: { ...data, friends } };
 };
 
 const getMyProfile = async (req: Request) => {
   let data = await UsersDBService.getUser({ filter: { _id: req.user.id }, select: '-__v -updated_at -fcmToken' });
-  return { data };
+  let friends = await FriendsDBService.getFriends(req.user._id);
+  return { data: { ...data, friends } };
 };
 
 const updateUser = async (req: Request) => {

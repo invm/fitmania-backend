@@ -19,7 +19,7 @@ const getStatistics = async (req: Request) => {
 };
 
 const getPosts = async (req: Request) => {
-  const { offset, limit } = req.query;
+  const { offset, limit, userId } = req.query;
   let friends = await FriendsDBService.getFriends(req.user._id);
 
   let privateFilter: IObject = {
@@ -49,6 +49,7 @@ const getPosts = async (req: Request) => {
     offset: +offset,
     limit: +limit,
     filter: {
+      ...(userId && { author: userId }),
       $and: [{ $or: [privateFilter, publicFilter] }, eventFilter],
     },
     select: '-__v -updated_at',
