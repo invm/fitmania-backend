@@ -63,8 +63,8 @@
     /* Advanced Options */
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */,
     "resolveJsonModule": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "typeRoots": ["@types", "./node_modules/@types"]
   },
-  "exclude": ["./node_modules/", "./dist/", "./src/utils/seed/"],
-  "typeRoots": ["./node_modules/@types", "./types"]
+  "exclude": ["./node_modules/", "./dist/", "./src/utils/seed/"]
 }
