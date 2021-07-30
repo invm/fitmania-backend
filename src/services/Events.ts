@@ -20,7 +20,7 @@ const getEvent = async (filter: IObject, options?: { populate: boolean }) => {
   if (options?.populate) {
     query.populate(
       'participants rejectedParticipants pendingApprovalParticipants',
-      '_id name lastname avatar'
+      '_id name lastname image'
     );
   }
 

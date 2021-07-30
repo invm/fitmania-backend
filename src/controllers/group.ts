@@ -52,10 +52,10 @@ const getFeaturedGroups = async (req: Request) => {
 
 const getGroupPosts = async (req: Request) => {
   let data = await Post.find({ group: req.params.id })
-    .populate('user', 'name lastname avatar')
-    .populate('event.participants', 'name lastname avatar')
-    .populate('event.rejectedParticipants', 'name lastname avatar')
-    .populate('event.pendingApprovalParticipants', 'name lastname avatar')
+    .populate('user', 'name lastname image')
+    .populate('event.participants', 'name lastname image')
+    .populate('event.rejectedParticipants', 'name lastname image')
+    .populate('event.pendingApprovalParticipants', 'name lastname image')
     .populate('comments.user', 'name lastname _id')
     .exec();
   return { data };

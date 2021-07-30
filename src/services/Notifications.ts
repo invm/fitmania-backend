@@ -9,7 +9,7 @@ const exists = async (_id: string, filter: IObject) => {
 const getNotification = async (filter: IObject, options?: { populate: boolean }) => {
   let query = Notification.findOne(filter);
 
-  if (options?.populate) query.populate('from to', '_id name lastname avatar');
+  if (options?.populate) query.populate('from to', '_id name lastname image');
 
   return query;
 };
@@ -28,7 +28,7 @@ const getNotifications = async ({
     .skip(offset * limit)
     .limit(limit);
 
-  if (options?.populate) query.populate('from to', '_id name lastname avatar');
+  if (options?.populate) query.populate('from to', '_id name lastname image');
 
   return query;
 };

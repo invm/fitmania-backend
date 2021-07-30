@@ -37,9 +37,9 @@ const generateUser = async ({
     email,
     location,
   });
-  let avatar = await getAvatar(user._id, gender);
+  let image = await getimage(user._id, gender);
 
-  user.avatar = avatar;
+  user.image = image;
 
   let allSports = [...sports];
 
@@ -98,7 +98,7 @@ export const createUserFolder = async (userId: string) => {
   });
 };
 
-const getAvatar = async (userId: string, gender: string) => {
+const getimage = async (userId: string, gender: string) => {
   return new Promise((resolve, reject) => {
     let filename = '';
     request.get(

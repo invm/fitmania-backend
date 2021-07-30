@@ -1,19 +1,20 @@
 import { check } from 'express-validator';
-import UsersDBService from '../services/Users';
 import Errors from '../config/Errors';
 import { entityExists } from '.';
 import ENTITIES from '../models';
-
+import { isArray } from 'lodash';
 export = {
   updateUser: [
-    check('name').optional().isString().withMessage(Errors.A0).bail(),
-    check('lastname').optional().isString().withMessage(Errors.A0).bail(),
-    check('birthday').optional().isISO8601().withMessage(Errors.A0).bail(),
-    check('location').optional().isString().withMessage(Errors.A0).bail(),
+    check('name').isString().withMessage(Errors.A0).optional(),
+    check('lastname').isString().withMessage(Errors.A0).optional(),
+    check('birthday').isInt().toInt().withMessage(Errors.A0).optional(),
+    check('location').isString().withMessage(Errors.A0).optional(),
     check('image').optional(),
-    check('preferable').optional().isString().withMessage(Errors.A0).bail(),
-    check('undesirable').optional().isString().withMessage(Errors.A0).bail(),
-    check('fcmToken').optional().isString().withMessage(Errors.A0).bail(),
+    check('preferable').isArray().withMessage(Errors.A0).optional(),
+    check('preferable.*').isString().withMessage(Errors.A0).optional(),
+    check('undesirable').isArray().withMessage(Errors.A0).optional(),
+    check('undesirable.*').isString().withMessage(Errors.A0).optional(),
+    check('fcmToken').isString().withMessage(Errors.A0).optional(),
   ],
 
   getUser: [entityExists(ENTITIES.user, { required: true })],

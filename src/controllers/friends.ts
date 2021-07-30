@@ -64,7 +64,7 @@ const search = async (req: Request) => {
         },
       ],
     },
-    select: 'avatar name lastname email location',
+    select: 'image name lastname email location',
   });
 
   // let groups = await Group.find({

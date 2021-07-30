@@ -13,7 +13,8 @@ const getUser = async (req: Request) => {
 const getMyProfile = async (req: Request) => {
   let data = await UsersDBService.getUser({ filter: { _id: req.user.id }, select: '-__v -updated_at -fcmToken' });
   let friends = await FriendsDBService.getFriends(req.user._id);
-  return { data: { ...data, friends } };
+  let befriendRequests = await FriendsDBService.getUserRequests(req.user._id, 'pending');
+  return { data: { ...data, friends, befriendRequests } };
 };
 
 const updateUser = async (req: Request) => {
@@ -22,7 +23,7 @@ const updateUser = async (req: Request) => {
   };
 
   if (req.file) {
-    updateFields.avatar = await compress(req.user._id, req.file);
+    updateFields.image = await compress(req.user._id, req.file);
   }
 
   if (Object.keys(updateFields).length > 0) {

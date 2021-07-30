@@ -38,7 +38,7 @@ const getPosts = async ({
       select: '-post -updated_at -__v',
       populate: {
         path: 'user',
-        select: 'name lastname avatar',
+        select: 'name lastname image',
       },
     });
 
@@ -48,20 +48,20 @@ const getPosts = async ({
       populate: [
         {
           path: 'participants',
-          select: 'name lastname avatar',
+          select: 'name lastname image',
         },
         {
           path: 'rejectedParticipants',
-          select: 'name lastname avatar',
+          select: 'name lastname image',
         },
         {
           path: 'pendingApprovalParticipants',
-          select: 'name lastname avatar',
+          select: 'name lastname image',
         },
       ],
     });
 
-  if (populate.author) query.populate({ path: 'author', select: 'name lastname avatar' });
+  if (populate.author) query.populate({ path: 'author', select: 'name lastname image' });
 
   if (sort) query.sort(sort);
 
@@ -90,7 +90,7 @@ const getPost = async (
       select: '-post -updated_at -__v',
       populate: {
         path: 'user',
-        select: 'name lastname avatar',
+        select: 'name lastname image',
       },
     });
 
@@ -101,21 +101,21 @@ const getPost = async (
         ? [
             {
               path: 'participants',
-              select: 'name lastname avatar',
+              select: 'name lastname image',
             },
             {
               path: 'rejectedParticipants',
-              select: 'name lastname avatar',
+              select: 'name lastname image',
             },
             {
               path: 'pendingApprovalParticipants',
-              select: 'name lastname avatar',
+              select: 'name lastname image',
             },
           ]
         : [],
     });
 
-  if (options?.populate?.author) query.populate({ path: 'author', select: 'name lastname avatar' });
+  if (options?.populate?.author) query.populate({ path: 'author', select: 'name lastname image' });
 
   return query;
 };

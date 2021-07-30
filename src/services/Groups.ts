@@ -11,7 +11,7 @@ const getGroup = async (filter: IObject, options?: { populate?: boolean }) => {
   let query = Group.findOne(filter);
 
   if (options?.populate) {
-    query.populate('admin users', 'name lastname avatar');
+    query.populate('admin users', 'name lastname image');
   }
   return query;
 };
@@ -32,7 +32,7 @@ const getGroups = async ({
     .limit(limit);
 
   if (populate) {
-    query.populate('admin users', 'name lastname avatar');
+    query.populate('admin users', 'name lastname image');
   }
   return query;
 };
@@ -46,7 +46,7 @@ const createGroup = async ({ title, sport, description, admin, users }: IGroup) 
     users,
   });
 
-  data.populate('admin users', 'name lastname avatar').execPopulate();
+  data.populate('admin users', 'name lastname image').execPopulate();
   return data;
 };
 

@@ -7,7 +7,7 @@ export interface IUser extends mongoose.Document {
   birthday?: Date;
   email: string;
   location?: string;
-  avatar?: string;
+  image?: string;
   preferable?: string[];
   undesirable?: string[];
   fcmToken?: string;
@@ -37,7 +37,7 @@ const UserSchema = new Schema(
       unique: true,
     },
     location: { type: String },
-    avatar: {
+    image: {
       type: String,
       default: 'default.png',
     },

@@ -4,7 +4,7 @@ import Notification from '../models/Notification';
 
 const getNotifications = async (req: any, res: Response, next: NextFunction) => {
   let list = await Notification.find({ user: req.user })
-    .populate('friend', 'name lastname avatar')
+    .populate('friend', 'name lastname image')
     .sort('-created_at')
     .exec();
   return { data: list };

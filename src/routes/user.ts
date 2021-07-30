@@ -9,6 +9,6 @@ router.get('/', Responder(Controller.getMyProfile));
 
 router.get('/:id', Validator.getUser, Responder(Controller.getUser));
 
-router.patch('/', Validator.updateUser, upload.single('image'), Responder(Controller.updateUser));
+router.patch('/', upload.single('image'), Validator.updateUser, Responder(Controller.updateUser));
 
 module.exports = router;
