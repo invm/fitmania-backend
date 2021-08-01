@@ -7,7 +7,8 @@ import GroupsDBService from '../services/Groups';
 export = {
   getGroups: [
     ...paginationQuery,
-    check('sports').optional().isString().withMessage(Errors.A0).bail(),
+    check('sports').isArray().withMessage(Errors.A0).bail().optional(),
+    check('sports*').isString().withMessage(Errors.A0).bail().optional(),
   ],
   getGroup: [entityExists(ENTITIES.group, { required: true })],
   getGroupPosts: [entityExists(ENTITIES.group, { required: true })],
@@ -38,12 +39,7 @@ export = {
       })
       .withMessage(Errors.A40)
       .bail(),
-    check('title')
-      .optional()
-      .isString()
-      .isLength({ min: 2, max: 100 })
-      .withMessage(Errors.A0)
-      .bail(),
+    check('title').optional().isString().isLength({ min: 2, max: 100 }).withMessage(Errors.A0).bail(),
     check('sport')
       .optional()
       .isString()

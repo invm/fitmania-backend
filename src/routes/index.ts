@@ -13,7 +13,7 @@ router.use('/posts', require('./posts'));
 
 router.use('/friends', require('./friends'));
 
-router.use('/group', require('./group'));
+router.use('/groups', require('./group'));
 
 router.use('/notifications', require('./notifications'));
 
