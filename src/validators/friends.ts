@@ -5,7 +5,10 @@ import ENTITIES from '../models';
 import FriendsDBService from '../services/Friends';
 
 export = {
+  getFriends: [...paginationQuery],
+
   getRequests: [...paginationQuery],
+	
   acceptRequest: [
     check('id')
       .custom(async (val, { req }) => {
@@ -15,6 +18,7 @@ export = {
       .withMessage(Errors.A38)
       .bail(),
   ],
+
   rejectRequest: [
     check('id')
       .custom(async (val, { req }) => {
@@ -24,6 +28,7 @@ export = {
       .withMessage(Errors.A38)
       .bail(),
   ],
+
   addFriend: [
     check('id')
       .custom(async (val, { req }) => {
@@ -38,6 +43,7 @@ export = {
       .withMessage(Errors.A35)
       .bail(),
   ],
+
   removeFriend: [
     check('id')
       .custom(async (val, { req }) => {
@@ -47,8 +53,10 @@ export = {
       .withMessage(Errors.A39)
       .bail(),
   ],
+
   search: [
     ...paginationQuery,
     check('q').isString().isLength({ max: 100, min: 1 }).withMessage(Errors.A0).bail(),
   ],
+	
 };

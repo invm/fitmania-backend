@@ -6,6 +6,8 @@ import FriendsValidator from '../validators/friends';
 
 const router = express.Router();
 
+router.get('/', FriendsValidator.getFriends, Responder(FriendsController.getFriends));
+
 router.get('/requests', FriendsValidator.getRequests, Responder(FriendsController.getRequests));
 
 router.post(

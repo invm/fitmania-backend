@@ -7,211 +7,238 @@ import CommentsDBService from '../services/Comments';
 import UsersDBService from '../services/Users';
 import { IObject } from '../types/IObject';
 import compress from '../utils/compress';
+import { IBefriendRequest } from '../models/BefriendRequest';
 
 const getStatistics = async (req: Request) => {
-  let users = await UsersDBService.count({});
-  let posts = await PostsDBService.count({});
-  let result = {
-    posts: posts,
-    users: users,
-  };
-  return { data: result };
+	let users = await UsersDBService.count({});
+	let posts = await PostsDBService.count({});
+	let result = {
+		posts: posts,
+		users: users,
+	};
+	return { data: result };
 };
 
 const getPosts = async (req: Request) => {
-  const { offset, limit, userId } = req.query;
-  let friends = await FriendsDBService.getFriends(req.user._id);
+	const { offset, limit, userId } = req.query;
+	let friends = (await FriendsDBService.getFriends({ _id: req.user._id })).map(
+		(v: IBefriendRequest) =>
+			v.from === req.user._id ? v.to.toString() : v.from.toString()
+	);
 
-  let privateFilter: IObject = {
-    display: 'friends',
-    author: { $in: [...friends, req.user._id] },
-  };
+	let privateFilter: IObject = {
+		display: 'friends',
+		author: { $in: [...friends, req.user._id] },
+	};
 
-  let publicFilter: IObject = {
-    display: 'all',
-  };
+	let publicFilter: IObject = {
+		display: 'all',
+	};
 
-  let sportFilter: IObject = {};
+	let sportFilter: IObject = {};
 
-  if (req.query?.sports) {
-    sportFilter['event.eventType'] = {
-      $in: typeof req.query.sports === 'string' ? req.query.sports.split(',') : req.query.sports,
-    };
-  }
+	if (req.query?.sports) {
+		sportFilter['event.eventType'] = {
+			$in:
+				typeof req.query.sports === 'string'
+					? req.query.sports.split(',')
+					: req.query.sports,
+		};
+	}
 
-  let eventFilter: IObject = {};
+	let eventFilter: IObject = {};
 
-  if (req.query?.sports) {
-    eventFilter.event = { $exists: true };
-  }
+	if (req.query?.sports) {
+		eventFilter.event = { $exists: true };
+	}
 
-  let posts = await PostsDBService.getPosts({
-    offset: +offset,
-    limit: +limit,
-    filter: {
-      ...(userId && { author: userId }),
-      $and: [{ $or: [privateFilter, publicFilter] }, eventFilter],
-    },
-    select: '-__v -updated_at',
-    populate: { author: true, comments: true, event: true },
-    sort: { created_at: -1 },
-  });
+	let posts = await PostsDBService.getPosts({
+		offset: +offset,
+		limit: +limit,
+		filter: {
+			...(userId && { author: userId }),
+			$and: [{ $or: [privateFilter, publicFilter] }, eventFilter],
+		},
+		select: '-__v -updated_at',
+		populate: { author: true, comments: true, event: true },
+		sort: { created_at: -1 },
+	});
 
-  return { data: posts };
+	return { data: posts };
 };
 
 const getUsersPosts = async (req: Request) => {
-  const friends = await FriendsDBService.getFriends(req.params.id);
-  const { offset, limit } = req.query;
+	let friends = (await FriendsDBService.getFriends({ _id: req.user._id })).map(
+		(v: IBefriendRequest) =>
+			v.from === req.user._id ? v.to.toString() : v.from.toString()
+	);
+	const { offset, limit } = req.query;
 
-  let filter = {
-    $or: [
-      {
-        display: 'all',
-        author: req.params.id,
-      },
-      { sharedBy: req.params.id },
-    ],
-  };
+	let filter = {
+		$or: [
+			{
+				display: 'all',
+				author: req.params.id,
+			},
+			{ sharedBy: req.params.id },
+		],
+	};
 
-  if (friends.includes(req.user._id.toString())) {
-    filter.$or.push({
-      display: 'friends',
-      author: req.params.id,
-    });
-  }
+	if (friends.includes(req.user._id.toString())) {
+		filter.$or.push({
+			display: 'friends',
+			author: req.params.id,
+		});
+	}
 
-  let posts = await PostsDBService.getPosts({
-    offset: +offset,
-    limit: +limit,
-    filter,
-    select: '-__v -updated_at',
-    populate: { author: true, comments: true, event: true },
-    sort: { created_at: -1 },
-  });
+	let posts = await PostsDBService.getPosts({
+		offset: +offset,
+		limit: +limit,
+		filter,
+		select: '-__v -updated_at',
+		populate: { author: true, comments: true, event: true },
+		sort: { created_at: -1 },
+	});
 
-  return { data: posts };
+	return { data: posts };
 };
 
 const getPost = async (req: Request) => {
-  let post = await PostsDBService.getPost(
-    {
-      _id: req.params.id,
-    },
-    {
-      select: '-__v -updated_at',
-      populate: {
-        author: true,
-        comments: true,
-        event: true,
-        populateEventUsers: true,
-      },
-    }
-  );
+	let post = await PostsDBService.getPost(
+		{
+			_id: req.params.id,
+		},
+		{
+			select: '-__v -updated_at',
+			populate: {
+				author: true,
+				comments: true,
+				event: true,
+				populateEventUsers: true,
+			},
+		}
+	);
 
-  return { data: post };
+	return { data: post };
 };
 
 const createPost = async (req: Request) => {
-  let { text, group, display, eventType, limitParticipants, openEvent, pace, startDate, address, coordinates } =
-    req.body;
-  let postData: IPost = {
-    author: req.user._id,
-    display,
-    text,
-  };
+	let {
+		text,
+		group,
+		display,
+		eventType,
+		limitParticipants,
+		openEvent,
+		pace,
+		startDate,
+		address,
+		coordinates,
+	} = req.body;
+	let postData: IPost = {
+		author: req.user._id,
+		display,
+		text,
+	};
 
-  if (req.file) {
-    postData.image = await compress(req.user._id, req.file);
-  }
+	if (req.file) {
+		postData.image = await compress(req.user._id, req.file);
+	}
 
-  if (group) postData.group = group;
+	if (group) postData.group = group;
 
-  if (startDate && eventType && limitParticipants && openEvent !== undefined && pace) {
-    try {
-      let eventDoc = await EventsDBService.createEvent({
-        participants: [req.user._id],
-        eventType,
-        limitParticipants,
-        openEvent,
-        pace,
-        startDate,
-        address,
-        coordinates: {
-          type: 'Point',
-          coordinates,
-        },
-      });
-      await PostsDBService.createPost({ ...postData, event: eventDoc._id });
+	if (
+		startDate &&
+		eventType &&
+		limitParticipants &&
+		openEvent !== undefined &&
+		pace
+	) {
+		try {
+			let eventDoc = await EventsDBService.createEvent({
+				participants: [req.user._id],
+				eventType,
+				limitParticipants,
+				openEvent,
+				pace,
+				startDate,
+				address,
+				coordinates: {
+					type: 'Point',
+					coordinates,
+				},
+			});
+			await PostsDBService.createPost({ ...postData, event: eventDoc._id });
 
-      return;
-    } catch (error) {
-      return { errors: [{ msg: error?.message }] };
-    }
-  } else {
-    await PostsDBService.createPost(postData);
-  }
+			return;
+		} catch (error) {
+			return { errors: [{ msg: error?.message }] };
+		}
+	} else {
+		await PostsDBService.createPost(postData);
+	}
 };
 
 const updatePost = async (req: Request) => {
-  let updateFields: IObject = {};
-  if (req.body.text) updateFields.text = req.body.text;
-  if (Object.keys(updateFields).length > 0) {
-    await PostsDBService.updatePost(req.params.id, updateFields);
-  }
-  return {
-    data: await PostsDBService.getPost(
-      {
-        _id: req.params.id,
-      },
-      {
-        select: '-__v -updated_at',
-        populate: {
-          author: true,
-          comments: true,
-          event: true,
-          populateEventUsers: true,
-        },
-      }
-    ),
-  };
+	let updateFields: IObject = {};
+	if (req.body.text) updateFields.text = req.body.text;
+	if (Object.keys(updateFields).length > 0) {
+		await PostsDBService.updatePost(req.params.id, updateFields);
+	}
+	return {
+		data: await PostsDBService.getPost(
+			{
+				_id: req.params.id,
+			},
+			{
+				select: '-__v -updated_at',
+				populate: {
+					author: true,
+					comments: true,
+					event: true,
+					populateEventUsers: true,
+				},
+			}
+		),
+	};
 };
 
 const deletePost = async (req: Request) => {
-  let post = await PostsDBService.getPost({ _id: req.params.id });
-  if (post.event) await EventsDBService.deleteEvent(post.event);
-  if (post.comments.length) await CommentsDBService.deletePostsComments(post._id);
-  await PostsDBService.deletePost(req.params.id);
+	let post = await PostsDBService.getPost({ _id: req.params.id });
+	if (post.event) await EventsDBService.deleteEvent(post.event);
+	if (post.comments.length)
+		await CommentsDBService.deletePostsComments(post._id);
+	await PostsDBService.deletePost(req.params.id);
 
-  return { msg: 'Removed post' };
+	return { msg: 'Removed post' };
 };
 
 const sharePost = async (req: Request) => {
-  await PostsDBService.sharePost(req.params.id, req.user._id);
+	await PostsDBService.sharePost(req.params.id, req.user._id);
 };
 
 const unsharePost = async (req: Request) => {
-  await PostsDBService.unsharePost(req.params.id, req.user._id);
+	await PostsDBService.unsharePost(req.params.id, req.user._id);
 };
 
 const likePost = async (req: Request) => {
-  await PostsDBService.likePost(req.params.id, req.user._id);
+	await PostsDBService.likePost(req.params.id, req.user._id);
 };
 
 const dislikePost = async (req: Request) => {
-  await PostsDBService.unlikePost(req.params.id, req.user._id);
+	await PostsDBService.unlikePost(req.params.id, req.user._id);
 };
 
 export default {
-  getPosts,
-  getPost,
-  createPost,
-  deletePost,
-  updatePost,
-  getUsersPosts,
-  sharePost,
-  unsharePost,
-  likePost,
-  dislikePost,
-  getStatistics,
+	getPosts,
+	getPost,
+	createPost,
+	deletePost,
+	updatePost,
+	getUsersPosts,
+	sharePost,
+	unsharePost,
+	likePost,
+	dislikePost,
+	getStatistics,
 };
