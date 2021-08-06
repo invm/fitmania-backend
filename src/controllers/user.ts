@@ -10,7 +10,7 @@ const getUser = async (req: Request) => {
 		select: '-__v -updated_at -fcmToken',
 	});
 	let friends = (
-		await FriendsDBService.getFriends({ _id: req.params._id })
+		await FriendsDBService.getAcceptedFriendsRequests({ _id: req.params._id })
 	).map((v: IBefriendRequest) =>
 		v.from === req.user._id ? v.to.toString() : v.from.toString()
 	);
@@ -23,7 +23,7 @@ const getMyProfile = async (req: Request) => {
 		filter: { _id: req.user.id },
 		select: '-__v -updated_at -fcmToken',
 	});
-	let friends = (await FriendsDBService.getFriends({ _id: req.user._id })).map(
+	let friends = (await FriendsDBService.getAcceptedFriendsRequests({ _id: req.user._id })).map(
 		(v: IBefriendRequest) =>
 			v.from === req.user._id ? v.to.toString() : v.from.toString()
 	);

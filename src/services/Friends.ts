@@ -2,7 +2,7 @@ import BefriendRequest, { IBefriendRequest } from '../models/BefriendRequest';
 import User from '../models/User';
 import { IObject } from '../types/IObject';
 
-const getFriends = async ({
+const getAcceptedFriendsRequests = async ({
 	_id,
 	offset,
 	limit,
@@ -80,13 +80,31 @@ const removeFriend = async (user1: string, user2: string) => {
 };
 
 const getFriendSuggestions = async (userId: string) => {
-	let friends = (await getFriends({ _id: userId })).map((v: IBefriendRequest) =>
-		v.from === userId ? v.to.toString() : v.from.toString()
+	let friends = (await getAcceptedFriendsRequests({ _id: userId })).map(
+		(v: IBefriendRequest) =>
+			v.from.toString() === userId.toString()
+				? v.to.toString()
+				: v.from.toString()
 	);
-	let suggestions = await User.find({ _id: { $nin: [friends, userId] } }).limit(
-		5
-	).select('-fcmToken -updated_at -created_at');
-	// let suggestions = await User.aggregate([{ $sample: { size: 3 } }]);
+
+	let requests = (
+		await getRequestsFromUser(userId, {
+			$in: ['pending', 'rejected'],
+		})
+	).map((v: IBefriendRequest) => v.to.toString());
+
+	let myRequests = (
+		await getUserRequests(userId, {
+			$in: ['pending', 'rejected'],
+		})
+	).map((v: IBefriendRequest) => v.from.toString());
+
+	let suggestions = await User.find({
+		_id: { $nin: [friends, requests, myRequests, userId] },
+	})
+		.limit(6)
+		.select('-fcmToken -updated_at -created_at');
+
 	return suggestions;
 };
 
@@ -99,12 +117,18 @@ const getRequest = async (from: string, to: string, state: any) => {
 	return BefriendRequest.findOne({ from, to, state });
 };
 
-const getUserRequests = async (to: string, state: any) => {
-	return BefriendRequest.find({ to, state });
+const getUserRequests = async (to: string, state: any, populate?: any) => {
+	let query = BefriendRequest.find({ to, state });
+	if (populate) query.populate(populate);
+	return await query;
+};
+
+const getRequestsFromUser = async (from: string, state: any) => {
+	return BefriendRequest.find({ from, state });
 };
 
 export default {
-	getFriends,
+	getAcceptedFriendsRequests,
 	areFriends,
 	exists,
 	askToBefriend,

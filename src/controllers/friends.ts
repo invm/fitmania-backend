@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import FriendsDBService from '../services/Friends';
 import UsersDBService from '../services/Users';
 import NotificationsDBService from '../services/Notifications';
+import { IBefriendRequest } from '../models/BefriendRequest';
 
 const addFriend = async (req: Request) => {
 	await FriendsDBService.askToBefriend(req.user._id, req.params.id);
@@ -89,16 +90,39 @@ const getFriendSuggestions = async (req: Request) => {
 };
 
 const getRequests = async (req: Request) => {
-	let data = await FriendsDBService.getUserRequests(req.user._id, 'pending');
+	let data = await FriendsDBService.getUserRequests(req.user._id, 'pending', {
+		path: 'from',
+		select: '-__v -updated_at -fcmToken',
+	});
+
+	return { data };
+};
+
+const getAcceptedFriendsRequests = async ({ query, user }: Request) => {
+	let data = await FriendsDBService.getAcceptedFriendsRequests({
+		_id: user._id,
+		offset: +query.offset,
+		limit: +query.limit,
+	});
 
 	return { data };
 };
 
 const getFriends = async ({ query, user }: Request) => {
-	let data = await FriendsDBService.getFriends({
-		_id: user._id,
+	let friends = (
+		await FriendsDBService.getAcceptedFriendsRequests({
+			_id: user._id,
+			offset: +query.offset,
+			limit: +query.limit,
+		})
+	).map((v: IBefriendRequest) =>
+		v.from.toString() === user._id.toString() ? v.to : v.from
+	);
+
+	let data = await UsersDBService.getUsers({
 		offset: +query.offset,
 		limit: +query.limit,
+		filter: { _id: { $in: friends } },
 	});
 
 	return { data };
@@ -112,5 +136,6 @@ export default {
 	getFriendSuggestions,
 	getRequests,
 	search,
+	getAcceptedFriendsRequests,
 	getFriends,
 };

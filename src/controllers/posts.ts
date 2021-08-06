@@ -21,7 +21,7 @@ const getStatistics = async (req: Request) => {
 
 const getPosts = async (req: Request) => {
 	const { offset, limit, userId } = req.query;
-	let friends = (await FriendsDBService.getFriends({ _id: req.user._id })).map(
+	let friends = (await FriendsDBService.getAcceptedFriendsRequests({ _id: req.user._id })).map(
 		(v: IBefriendRequest) =>
 			v.from === req.user._id ? v.to.toString() : v.from.toString()
 	);
@@ -68,7 +68,7 @@ const getPosts = async (req: Request) => {
 };
 
 const getUsersPosts = async (req: Request) => {
-	let friends = (await FriendsDBService.getFriends({ _id: req.user._id })).map(
+	let friends = (await FriendsDBService.getAcceptedFriendsRequests({ _id: req.user._id })).map(
 		(v: IBefriendRequest) =>
 			v.from === req.user._id ? v.to.toString() : v.from.toString()
 	);
