@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import FriendsDBService from '../services/Friends';
 import UsersDBService from '../services/Users';
+import GroupsDBService from '../services/Groups';
 import NotificationsDBService from '../services/Notifications';
 import { IBefriendRequest } from '../models/BefriendRequest';
 
@@ -65,22 +66,26 @@ const search = async (req: Request) => {
 				},
 			],
 		},
-		select: 'image name lastname email location',
+		select: 'image name lastname email location preferable undesirable',
 	});
 
-	// let groups = await Group.find({
-	//   $and: [
-	//     {
-	//       $or: [
-	//         { title: { $regex: q, $options: 'i' } },
-	//         { description: { $regex: q, $options: 'i' } },
-	//         { sport: { $regex: q, $options: 'i' } },
-	//       ],
-	//     },
-	//   ],
-	// }).select('title sport description users');
+	let groups = await GroupsDBService.getGroups({
+		offset: +offset,
+		limit: +limit,
+		filter: {
+			$and: [
+				{
+					$or: [
+						{ title: { $regex: q, $options: 'i' } },
+						{ description: { $regex: q, $options: 'i' } },
+						{ sport: { $regex: q, $options: 'i' } },
+					],
+				},
+			],
+		},
+	});
 
-	return { data: { users } };
+	return { data: { users, groups } };
 };
 
 const getFriendSuggestions = async (req: Request) => {
