@@ -37,9 +37,9 @@ export const Respond = (
 
 	success
 		? console.log(chalk.green(`Request ended successfully.`))
-		: console.log(chalk.yellow(`Request ended unsuccessfully.`));
+		: console.log(chalk.red(`Request ended unsuccessfully.`));
 	if (!success && response.msg)
-		console.log(chalk.yellow(`Reason: ${response.msg}`));
+		console.log(chalk.red(`Reason: ${response.msg}`));
 	console.log(`The request was processed in ${processTime} ms.`);
 
 	let responseStatus = response?.status ? response.status : success ? 200 : 500; // If a status is given, use it, else determine using the success parameter.
@@ -76,7 +76,7 @@ export const Respond = (
 		res.status(responseStatus).send();
 	}
 
-	console.log(chalk.green('----------------------'));
+	console.log(chalk.green('----------------------'), '\n');
 };
 
 const ServiceHandler = async (
@@ -91,11 +91,12 @@ const ServiceHandler = async (
 		if (service) {
 			try {
 				let result = await service(req);
-				if (result?.data) response.data = result.data;
+				if (result?.data !== undefined) response.data = result.data;
 				if (result?.msg) response.msg = result.msg;
 				if (result?.errors) response.errors = result.errors;
 			} catch (error) {
-				let requestSucceeded = true; // If no service was provided then the default response is positive with status 200
+				console.log('Error finishing service, stopping gracefully', error);
+				process.exit(0);
 			}
 		}
 		Respond(req, res, requestSucceeded, response);

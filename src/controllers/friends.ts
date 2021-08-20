@@ -9,9 +9,9 @@ const addFriend = async (req: Request) => {
 	await FriendsDBService.askToBefriend(req.user._id, req.params.id);
 
 	await NotificationsDBService.createNotification({
-		from: req.params.id,
-		type: 'friendRequest',
-		to: req.user._id,
+		resource: req.user._id,
+		user: req.params.id,
+		type: 'friend',
 		title: 'New friend request!',
 		body: `You've received a new friend request from ${req.params.name}.`,
 	});
@@ -34,10 +34,10 @@ const acceptRequest = async (req: Request) => {
 	await FriendsDBService.acceptRequest(req.params.id, req.user._id);
 
 	await NotificationsDBService.createNotification({
-		from: req.user._id,
-		type: 'friendRequest',
-		to: req.params.id,
-		title: 'New friend request!',
+		resource: req.user._id,
+		user: req.params._id,
+		type: 'friend',
+		title: 'Your friend request has been approved!',
 		body: `You are now friends with ${req.user?.name} ${req.user?.lastname}.`,
 	});
 

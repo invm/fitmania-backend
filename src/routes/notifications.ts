@@ -10,25 +10,13 @@ router.get(
 );
 
 router.get(
-  '/list',
+  '/',
   NotificationsValidator.getNotifications,
   Responder(NotificationsController.getNotifications)
 );
 
-router.get(
-  '/single/:id',
-  NotificationsValidator.getSingleNotification,
-  Responder(NotificationsController.getSingleNotification)
-);
-
-router.post(
-  '/read/:id',
-  NotificationsValidator.markAsRead,
-  Responder(NotificationsController.markAsRead)
-);
-
 router.delete(
-  '/delete/:id',
+  '/:id',
   NotificationsValidator.deleteNotification,
   Responder(NotificationsController.deleteNotification)
 );

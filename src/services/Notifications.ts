@@ -6,13 +6,6 @@ const exists = async (_id: string, filter: IObject) => {
   return !!result;
 };
 
-const getNotification = async (filter: IObject, options?: { populate: boolean }) => {
-  let query = Notification.findOne(filter);
-
-  if (options?.populate) query.populate('from to', '_id name lastname image');
-
-  return query;
-};
 const getNotifications = async ({
   filter,
   options,
@@ -28,30 +21,21 @@ const getNotifications = async ({
     .skip(offset * limit)
     .limit(limit);
 
-  if (options?.populate) query.populate('from to', '_id name lastname image');
-
   return query;
 };
 
-const markAsRead = async (_id: string, responded?: boolean) => {
-  let params: IObject = { read: true };
-  if (responded) params = { ...params, responded: true };
-  await Notification.updateOne({ _id }, { $set: params });
-};
 
 const deleteNotification = async (_id: string) => {
   await Notification.deleteOne({ _id });
 };
 
-const createNotification = async ({ from, to, title, type, body }: INotification) => {
-  await Notification.create({ from, to, title, type, body });
+const createNotification = async ({ user, title, type, body }: INotification) => {
+  await Notification.create({ user, title, type, body });
 };
 
 export default {
   exists,
-  getNotification,
   getNotifications,
-  markAsRead,
   deleteNotification,
   createNotification,
 };

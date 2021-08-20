@@ -41,11 +41,11 @@ const morganChalk = morgan(function (tokens: any, req: any, res: any) {
 		Object.keys(req.body).length &&
 		console.log(chalk.blueBright('body:'), req.body);
 	return [
-		chalk.white(`[ ${new Date().toLocaleString('he-il')} ]`),
+		chalk.magenta(`[ ${new Date().toLocaleString('he-il')} ]`),
 		res.statusCode < 400
 			? chalk.green.bold(tokens.status(req, res))
 			: chalk.red.bold(tokens.status(req, res)),
-		chalk.white(tokens.method(req, res)),
+		chalk.white.bold(tokens.method(req, res)),
 		chalk.yellow(tokens.url(req, res)),
 		chalk.white(tokens['response-time'](req, res) + ' ms'),
 	].join(' ');

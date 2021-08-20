@@ -2,52 +2,36 @@ import { Request, Response, NextFunction } from 'express';
 import User from '../models/User';
 import Notification from '../models/Notification';
 
-const getNotifications = async (req: any, res: Response, next: NextFunction) => {
-  let list = await Notification.find({ user: req.user })
-    .populate('friend', 'name lastname image')
-    .sort('-created_at')
-    .exec();
-  return { data: list };
+const getNotifications = async (req: Request) => {
+	let data = await Notification.find({ user: req.user._id }).sort(
+		'-created_at'
+	);
+
+	await Notification.updateMany(
+		{ user: req.user._id },
+		{
+			$set: {
+				read: true,
+			},
+		}
+	);
+	return { data };
 };
 
-const getNotificationsCount = async (req: any, res: Response, next: NextFunction) => {
-  let count = await Notification.count({ user: req.user, read: false });
-  return { data: count };
-};
-const getSingleNotification = async (req: any, res: Response, next: NextFunction) => {
-  let notification = await Notification.findById(req.params.id)
-    .populate('user')
-    .populate('friend')
-    .exec();
-  if (!notification) return res.status(400);
-  return { data: notification };
+const getNotificationsCount = async (req: Request) => {
+	let count = await Notification.countDocuments({
+		user: req.user._id,
+		read: false,
+	});
+	return { data: { count } };
 };
 
-const markAsRead = async (req: any, res: Response, next: NextFunction) => {
-  let notification = await Notification.findById(req.params.id);
-
-  if (!notification) return res.status(400);
-
-  notification.read = true;
-  await notification.save();
-
-  return { msg: 'Marked as read' };
-};
-
-const deleteNotification = async (req: any, res: Response, next: NextFunction) => {
-  let notification = await Notification.findById(req.params.id);
-
-  if (!notification) return res.status(400);
-
-  await Notification.deleteOne({ _id: req.params.id });
-
-  return { msg: 'Deleted notification' };
+const deleteNotification = async (req: Request) => {
+	await Notification.deleteOne({ _id: req.params.id });
 };
 
 export default {
-  getNotifications,
-  getNotificationsCount,
-  getSingleNotification,
-  markAsRead,
-  deleteNotification,
+	getNotifications,
+	getNotificationsCount,
+	deleteNotification,
 };
