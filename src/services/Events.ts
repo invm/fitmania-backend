@@ -31,4 +31,8 @@ const updateEvent = async (filter: IObject, params: IObject) => {
   await Event.updateOne(filter, params);
 };
 
-export default { createEvent, updateEvent, deleteEvent, exists, getEvent };
+const count = async (filter: IObject) => {
+	return Event.countDocuments(filter);
+};
+
+export default { createEvent, updateEvent, deleteEvent, exists, getEvent, count };

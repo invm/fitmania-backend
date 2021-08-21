@@ -1,9 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
-import Post, { IPost } from '../models/Post';
+import { Request } from 'express';
+import { IPost } from '../models/Post';
 import PostsDBService from '../services/Posts';
 import EventsDBService from '../services/Events';
 import FriendsDBService from '../services/Friends';
 import CommentsDBService from '../services/Comments';
+import GroupDBService from '../services/Groups';
 import UsersDBService from '../services/Users';
 import { IObject } from '../types/IObject';
 import compress from '../utils/compress';
@@ -12,9 +13,15 @@ import { IBefriendRequest } from '../models/BefriendRequest';
 const getStatistics = async (req: Request) => {
 	let users = await UsersDBService.count({});
 	let posts = await PostsDBService.count({});
+	let comments = await CommentsDBService.count({});
+	let events = await EventsDBService.count({});
+	let groups = await GroupDBService.count({});
 	let result = {
-		posts: posts,
-		users: users,
+		posts,
+		users,
+		comments,
+		groups,
+		events,
 	};
 	return { data: result };
 };

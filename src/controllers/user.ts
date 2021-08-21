@@ -1,5 +1,6 @@
 import UsersDBService from '../services/Users';
 import FriendsDBService from '../services/Friends';
+import GroupsDBService from '../services/Groups';
 import { Request } from 'express';
 import compress from '../utils/compress';
 import { IBefriendRequest } from '../models/BefriendRequest';
@@ -16,9 +17,6 @@ const getUser = async (req: Request) => {
 		v.from === req.params.id ? v.from.toString() : v.to.toString()
 	);
 
-	console.log(_friends);
-	
-
 	let friends = await UsersDBService.getUsers({
 		skipPagination: true,
 		filter: {
@@ -26,7 +24,13 @@ const getUser = async (req: Request) => {
 		},
 	});
 
-	return { data: { ...data, friends } };
+	let groups = await GroupsDBService.getGroups({
+		filter: {
+			users: req.params.id
+		}
+	})
+
+	return { data: { ...data, friends, groups } };
 };
 
 const getMyProfile = async (req: Request) => {
@@ -55,7 +59,13 @@ const getMyProfile = async (req: Request) => {
 		},
 	});
 
-	return { data: { ...data, friends, befriendRequests, myRequests } };
+	let groups = await GroupsDBService.getGroups({
+		filter: {
+			users: req.user.id
+		}
+	})
+
+	return { data: { ...data, friends, befriendRequests, myRequests, groups } };
 };
 
 const updateUser = async (req: Request) => {
