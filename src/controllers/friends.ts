@@ -4,6 +4,7 @@ import UsersDBService from '../services/Users';
 import GroupsDBService from '../services/Groups';
 import NotificationsDBService from '../services/Notifications';
 import { IBefriendRequest } from '../models/BefriendRequest';
+import { newFriendRequestNotification } from '../services/utils';
 
 const addFriend = async (req: Request) => {
 	await FriendsDBService.askToBefriend(req.user._id, req.params.id);
@@ -15,6 +16,8 @@ const addFriend = async (req: Request) => {
 		title: 'New friend request!',
 		body: `You've received a new friend request from ${req.params.name}.`,
 	});
+
+	newFriendRequestNotification(req.params.id,req.user._id,'newFriendRequest', `${req.user?.name} ${req.user?.lastname}`)
 
 	return { msg: 'Request sent' };
 };
@@ -33,13 +36,7 @@ const rejectRequest = async (req: Request) => {
 const acceptRequest = async (req: Request) => {
 	await FriendsDBService.acceptRequest(req.params.id, req.user._id);
 
-	await NotificationsDBService.createNotification({
-		resource: req.user._id,
-		user: req.params._id,
-		type: 'friend',
-		title: 'Your friend request has been approved!',
-		body: `You are now friends with ${req.user?.name} ${req.user?.lastname}.`,
-	});
+	newFriendRequestNotification(req.params.id,req.user._id,'requestAccepted', `${req.user?.name} ${req.user?.lastname}`)
 
 	return { msg: 'Accepted request' };
 };

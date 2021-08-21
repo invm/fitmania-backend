@@ -16,7 +16,7 @@ const createComment = async (req: Request) => {
 	});
 
 	await PostsDBService.addComment(req.params.id, comment._id).then(() => {
-		newCommentNotification(req.params.id);
+		newCommentNotification(req.params.id, req.user._id);
 	});
 
 	return { data: comment };

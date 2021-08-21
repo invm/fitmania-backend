@@ -14,7 +14,7 @@ router.post(
   '/accept/:id',
   FriendsValidator.acceptRequest,
   Responder(FriendsController.acceptRequest)
-);
+); 
 
 router.post(
   '/reject/:id',
