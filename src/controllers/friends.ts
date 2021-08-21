@@ -9,14 +9,6 @@ import { newFriendRequestNotification } from '../services/utils';
 const addFriend = async (req: Request) => {
 	await FriendsDBService.askToBefriend(req.user._id, req.params.id);
 
-	await NotificationsDBService.createNotification({
-		resource: req.user._id,
-		user: req.params.id,
-		type: 'friend',
-		title: 'New friend request!',
-		body: `You've received a new friend request from ${req.params.name}.`,
-	});
-
 	newFriendRequestNotification(req.params.id,req.user._id,'newFriendRequest', `${req.user?.name} ${req.user?.lastname}`)
 
 	return { msg: 'Request sent' };

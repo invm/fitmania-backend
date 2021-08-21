@@ -17,14 +17,14 @@ const getPosts = async ({
 }: {
   offset: number;
   limit: number;
-  filter?: {};
-  select?: {} | string;
+  filter?: IObject;
+  select?: IObject | string;
   populate?: {
     author?: boolean;
     comments?: boolean;
     event?: boolean;
   };
-  sort?: {} | string;
+  sort?: IObject | string;
 }) => {
   let query = Post.find(filter)
     .skip(offset * limit)

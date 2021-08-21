@@ -9,11 +9,22 @@ const getUser = async (req: Request) => {
 		filter: { _id: req.params.id },
 		select: '-__v -updated_at -fcmToken',
 	});
-	let friends = (
-		await FriendsDBService.getAcceptedFriendsRequests({ _id: req.params._id })
+
+	let _friends = (
+		await FriendsDBService.getAcceptedFriendsRequests({ _id: req.params.id })
 	).map((v: IBefriendRequest) =>
-		v.from === req.user._id ? v.to.toString() : v.from.toString()
+		v.from === req.params.id ? v.from.toString() : v.to.toString()
 	);
+
+	console.log(_friends);
+	
+
+	let friends = await UsersDBService.getUsers({
+		skipPagination: true,
+		filter: {
+			_id: { $in: _friends },
+		},
+	});
 
 	return { data: { ...data, friends } };
 };
@@ -23,15 +34,28 @@ const getMyProfile = async (req: Request) => {
 		filter: { _id: req.user.id },
 		select: '-__v -updated_at -fcmToken',
 	});
-	let friends = (await FriendsDBService.getAcceptedFriendsRequests({ _id: req.user._id })).map(
-		(v: IBefriendRequest) =>
-			v.from === req.user._id ? v.to.toString() : v.from.toString()
+	let _friends = (
+		await FriendsDBService.getAcceptedFriendsRequests({ _id: req.user._id })
+	).map((v: IBefriendRequest) =>
+		v.from === req.user._id ? v.to.toString() : v.from.toString()
 	);
 	let befriendRequests = await FriendsDBService.getUserRequests(
 		req.user._id,
 		'pending'
 	);
-	return { data: { ...data, friends, befriendRequests } };
+
+	let myRequests = (
+		await FriendsDBService.getRequestsFromUser(req.user._id, 'pending')
+	).map((v: IBefriendRequest) => v.to.toString());
+
+	let friends = await UsersDBService.getUsers({
+		skipPagination: true,
+		filter: {
+			_id: { $in: _friends },
+		},
+	});
+
+	return { data: { ...data, friends, befriendRequests, myRequests } };
 };
 
 const updateUser = async (req: Request) => {

@@ -20,10 +20,11 @@ const getStatistics = async (req: Request) => {
 };
 
 const getPosts = async (req: Request) => {
-	const { offset, limit, userId } = req.query;
-	let friends = (await FriendsDBService.getAcceptedFriendsRequests({ _id: req.user._id })).map(
-		(v: IBefriendRequest) =>
-			v.from === req.user._id ? v.to.toString() : v.from.toString()
+	const { offset, limit, userId, sports } = req.query;
+	let friends = (
+		await FriendsDBService.getAcceptedFriendsRequests({ _id: req.user._id })
+	).map((v: IBefriendRequest) =>
+		v.from === req.user._id ? v.to.toString() : v.from.toString()
 	);
 
 	let privateFilter: IObject = {
@@ -35,21 +36,13 @@ const getPosts = async (req: Request) => {
 		display: 'all',
 	};
 
-	let sportFilter: IObject = {};
-
-	if (req.query?.sports) {
-		sportFilter['event.eventType'] = {
-			$in:
-				typeof req.query.sports === 'string'
-					? req.query.sports.split(',')
-					: req.query.sports,
-		};
-	}
-
 	let eventFilter: IObject = {};
 
-	if (req.query?.sports) {
-		eventFilter.event = { $exists: true };
+	if (sports) {
+		(eventFilter.event = { $exists: true }),
+			(eventFilter.eventType = {
+				$in: typeof sports === 'string' ? sports.split(',') : sports,
+			});
 	}
 
 	let posts = await PostsDBService.getPosts({
@@ -68,9 +61,10 @@ const getPosts = async (req: Request) => {
 };
 
 const getUsersPosts = async (req: Request) => {
-	let friends = (await FriendsDBService.getAcceptedFriendsRequests({ _id: req.user._id })).map(
-		(v: IBefriendRequest) =>
-			v.from === req.user._id ? v.to.toString() : v.from.toString()
+	let friends = (
+		await FriendsDBService.getAcceptedFriendsRequests({ _id: req.user._id })
+	).map((v: IBefriendRequest) =>
+		v.from === req.user._id ? v.to.toString() : v.from.toString()
 	);
 	const { offset, limit } = req.query;
 
@@ -168,7 +162,11 @@ const createPost = async (req: Request) => {
 					coordinates,
 				},
 			});
-			await PostsDBService.createPost({ ...postData, event: eventDoc._id });
+			await PostsDBService.createPost({
+				...postData,
+				eventType,
+				event: eventDoc._id,
+			});
 
 			return;
 		} catch (error) {

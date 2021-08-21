@@ -75,7 +75,7 @@ export const newFriendRequestNotification = async (
 
 	await NotificationsDBService.createNotification({
 		user: to,
-		type: 'post',
+		type: 'friend',
 		title,
 		body,
 		resource: from,

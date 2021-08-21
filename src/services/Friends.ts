@@ -100,7 +100,7 @@ const getFriendSuggestions = async (userId: string) => {
 	).map((v: IBefriendRequest) => v.from.toString());
 
 	let suggestions = await User.find({
-		_id: { $nin: [friends, requests, myRequests, userId] },
+		_id: { $nin: Array.from(new Set([...friends, ...requests, ...myRequests, userId])) },
 	})
 		.limit(6)
 		.select('-fcmToken -updated_at -created_at');
@@ -138,4 +138,5 @@ export default {
 	getFriendSuggestions,
 	getRequest,
 	getUserRequests,
+	getRequestsFromUser
 };
