@@ -1,26 +1,22 @@
 const sgMail = require('@sendgrid/mail');
 const nconf = require('nconf');
 
-async function GenerateSystemEmail(
-  content: String,
-  emailTitle: String,
-  to: String
-) {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+async function GenerateSystemEmail(content: String, emailTitle: String, to: String) {
+	sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-  const msg = {
-    to: to,
-    from: nconf.get('email:address'),
-    subject: emailTitle,
-    html: content,
-  };
+	const msg = {
+		to: to,
+		from: nconf.get('email:address'),
+		subject: emailTitle,
+		html: content
+	};
 
-  let sendGridResponse = await sgMail.send(msg);
+	let sendGridResponse = await sgMail.send(msg);
 
-  if (sendGridResponse[0].statusCode !== 202) {
-    console.log(sendGridResponse[0]);
-    throw 'Error sending email';
-  }
+	if (sendGridResponse[0].statusCode !== 202) {
+		console.log(sendGridResponse[0]);
+		throw 'Error sending email';
+	}
 }
 
 /**
@@ -32,17 +28,16 @@ async function GenerateSystemEmail(
  * @param otp
  */
 const sendOTP = async function (email: String, otp: String) {
-  let emailTitle = 'Admin panel login OTP';
+	let emailTitle = 'FitMania - One time password';
 
-  let content = `
-			Hi, here is your OTP for ${nconf.get(
-        'server:name'
-      )}, it will only last ${nconf.get(
-    'auth:otpTimer'
-  )} minutes so be quick!: <code style="background-color: #767676;color: white">${otp}</code>.<br>
-		`;
+	let content = `<h3 style="font-size: 24px;">
+	Hi, here is your one time password for ${nconf.get(
+		'server:name'
+	)}, <code style="background-color: #00acff;color: white;">${otp}</code>.<br>
+	</h3>
+	`;
 
-  await GenerateSystemEmail(content, emailTitle, email);
+	GenerateSystemEmail(content, emailTitle, email).then();
 };
 
 export default { sendOTP };

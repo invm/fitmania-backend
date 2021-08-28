@@ -30,7 +30,7 @@ const sendOTP = async (req: Request) => {
   await UsersDBService.updateUser({ filter: { email }, params });
 
   // Used to prevent unwanted usage of email for testing purposes. Instead, we only log the password.
-  if (process.env.CHEAPSKATE_MODE !== 'on') await EmailService.sendOTP(email, `${token}`);
+  if (process.env.CHEAPSKATE_MODE !== 'on') EmailService.sendOTP(email, `${token}`);
   else {
     console.log(`Cheapskate mode is on, the generated OTP for authentication is: ${token}`);
   }

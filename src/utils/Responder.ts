@@ -38,8 +38,7 @@ export const Respond = (
 	success
 		? console.log(chalk.green(`Request ended successfully.`))
 		: console.log(chalk.red(`Request ended unsuccessfully.`));
-	if (!success && response.msg)
-		console.log(chalk.red(`Reason: ${response.msg}`));
+	if (!success && response.msg) console.log(chalk.red(`Reason: ${response.msg}`));
 	console.log(`The request was processed in ${processTime} ms.`);
 
 	let responseStatus = response?.status ? response.status : success ? 200 : 500; // If a status is given, use it, else determine using the success parameter.
@@ -49,12 +48,7 @@ export const Respond = (
 	 * 1) If a msg, data, errorCode or errors are provided, sends them.
 	 * 2) Returns a simple status code if none of the above.
 	 */
-	if (
-		response?.msg ||
-		response?.data ||
-		response?.errorCode ||
-		response?.errors
-	) {
+	if (response?.msg || response?.data || response?.errorCode || response?.errors) {
 		if (response?.msg) {
 			finalResponse.msg = response.msg;
 		}
@@ -79,12 +73,7 @@ export const Respond = (
 	console.log(chalk.green('----------------------'), '\n');
 };
 
-const ServiceHandler = async (
-	req: Request,
-	res: Response,
-	next: NextFunction,
-	service: Function
-) => {
+const ServiceHandler = async (req: Request, res: Response, next: NextFunction, service: Function) => {
 	if (verifyValidation(req, res)) {
 		let requestSucceeded = true; // If no service was provided then the default response is positive with status 200
 		let response: { [key: string]: any } = {};
@@ -95,8 +84,7 @@ const ServiceHandler = async (
 				if (result?.msg) response.msg = result.msg;
 				if (result?.errors) response.errors = result.errors;
 			} catch (error) {
-				console.log('Error finishing service, stopping gracefully', error);
-				process.exit(0);
+				console.log('Error finishing service', error, error?.message);
 			}
 		}
 		Respond(req, res, requestSucceeded, response);
@@ -149,7 +137,7 @@ const verifyValidation = (req: Request, res: Response) => {
 	const hasValidationErrors = !errors.isEmpty();
 	const validationErrors = errors.array().map((v) => ({
 		...v,
-		value: isObject(v.value) ? JSON.stringify(v.value) : v.value,
+		value: isObject(v.value) ? JSON.stringify(v.value) : v.value
 	}));
 
 	if (
@@ -158,23 +146,17 @@ const verifyValidation = (req: Request, res: Response) => {
 	) {
 		Respond(req, res, false, {
 			msg: 'Use request params when using GET requests. Otherwise, use body.',
-			status: 400,
+			status: 400
 		});
 		return false;
 	}
 
 	if (hasValidationErrors) {
 		let response: Res = {
-			status: validationErrors[0].msg.status
-				? validationErrors[0].msg.status
-				: 422, // Use the status code of the first error if one is available else status 422 is the default
+			status: validationErrors[0].msg.status ? validationErrors[0].msg.status : 422 // Use the status code of the first error if one is available else status 422 is the default
 		};
 
-		console.error(
-			`${chalk.yellow(
-				'Errors have been found during validation of the request:'
-			)}`
-		);
+		console.error(`${chalk.yellow('Errors have been found during validation of the request:')}`);
 
 		let param: string;
 		let newParamFlag = true;
@@ -201,7 +183,7 @@ const verifyValidation = (req: Request, res: Response) => {
 
 		validationErrors.forEach((err) => {
 			let error: Err = {
-				msg: `${err.param} - ${err.msg}`,
+				msg: `${err.param} - ${err.msg}`
 			};
 			if (err.value) error.data = err.value;
 			// An error msg might not be related to a specific field
