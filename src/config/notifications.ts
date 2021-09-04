@@ -1,3 +1,4 @@
+/* App notifications */
 const notifications = {
 	newComment: {
 		title: 'New comment',

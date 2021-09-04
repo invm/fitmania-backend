@@ -1,12 +1,9 @@
 {
-  "server": {
-    "name": "fitmania"
-  },
-  "auth": {
-    "otpTimer": 2,
-    "sessionTimer": 155520000000
-  },
-  "email": {
-    "address": "info@fitmania.tk"
-  }
+	"server": {
+		"name": "fitmania"
+	},
+	"auth": {
+		"otpTimer": 2,
+		"sessionTimer": 155520000000
+	}
 }

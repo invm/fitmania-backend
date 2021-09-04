@@ -1,3 +1,5 @@
+/* Friends use cases functions */
+
 import { Request, Response, NextFunction } from 'express';
 import FriendsDBService from '../services/Friends';
 import UsersDBService from '../services/Users';

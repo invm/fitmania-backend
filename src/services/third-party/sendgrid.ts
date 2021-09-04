@@ -6,7 +6,7 @@ async function GenerateSystemEmail(content: String, emailTitle: String, to: Stri
 
 	const msg = {
 		to: to,
-		from: nconf.get('email:address'),
+		from: process.env.SYSTEM_EMAIL,
 		subject: emailTitle,
 		html: content
 	};

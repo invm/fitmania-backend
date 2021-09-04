@@ -1,3 +1,5 @@
+/* Posts use cases functions */
+
 import { Request } from 'express';
 import { IPost } from '../models/Post';
 import PostsDBService from '../services/Posts';

@@ -1,3 +1,5 @@
+/* Events use cases functions */
+
 import { Request } from 'express';
 import PostsDBService from '../services/Posts';
 import EventsDBService from '../services/Events';

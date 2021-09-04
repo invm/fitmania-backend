@@ -1,3 +1,5 @@
+/* Authentication functions */
+
 import UsersDBService from '../services/Users';
 import GroupsDBService from '../services/Groups';
 import EmailService from '../services/third-party/sendgrid';

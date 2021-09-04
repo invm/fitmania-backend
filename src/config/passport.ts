@@ -1,3 +1,4 @@
+/* Auth strategy configuration */
 const passport = require('passport');
 import User from '../models/User';
 

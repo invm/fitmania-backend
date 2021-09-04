@@ -1,3 +1,4 @@
+/* Comments use cases functions */
 import { Request } from 'express';
 import CommentsDBService from '../services/Comments';
 import NotificationsDBService from '../services/Notifications';

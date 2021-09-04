@@ -1,3 +1,5 @@
+/* Validation errors configurations*/
+
 const errors = {
   A0: 'The value does not match the expected type. Please refer to the API documentation.',
   A1: 'Email is registered.',

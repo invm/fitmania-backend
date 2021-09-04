@@ -1,3 +1,5 @@
+/* User use cases functions*/
+
 import UsersDBService from '../services/Users';
 import FriendsDBService from '../services/Friends';
 import GroupsDBService from '../services/Groups';

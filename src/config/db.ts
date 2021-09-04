@@ -1,3 +1,5 @@
+/* Database config */
+
 import chalk from 'chalk';
 import mongoose, { ConnectionOptions } from 'mongoose';
 const { MONGO_HOST, MONGO_PORT, MONGO_USER, MONGO_PASS, MONGO_DB, MONGO_STR, MONGO_QUERY } =

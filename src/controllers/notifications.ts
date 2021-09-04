@@ -1,3 +1,5 @@
+/* Notifications use cases functions */
+
 import { Request, Response, NextFunction } from 'express';
 import User from '../models/User';
 import Notification from '../models/Notification';
