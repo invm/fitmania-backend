@@ -54,6 +54,8 @@ The app allows user authentication, post and comment publication. The user may c
 
 #### Environment setup
 
+> Node version 14+ is mandatory
+
 Replace all in angle brackets to run locally
 
 - NODE_ENV=development
@@ -71,13 +73,15 @@ Replace all in angle brackets to run locally
 - MONGO_QUERY=?authSource=admin
 - ALLOWED_ORIGIN=http://localhost:3000 **Direct to React webapp**
 - API_KEY=asd123 **Meant to filter out unwanted traffic**
-To run locally
+
+
+Run locally
 ```
 npm i
 npm start
 ```
 
-To run JS build
+Run JS build
 ```
 npm run build
 node dist/index.js
