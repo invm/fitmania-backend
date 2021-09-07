@@ -23,26 +23,24 @@ const getStatistics = async (req: Request) => {
 		users,
 		comments,
 		groups,
-		events,
+		events
 	};
 	return { data: result };
 };
 
 const getPosts = async (req: Request) => {
 	const { offset, limit, userId, sports } = req.query;
-	let friends = (
-		await FriendsDBService.getAcceptedFriendsRequests({ _id: req.user._id })
-	).map((v: IBefriendRequest) =>
+	let friends = (await FriendsDBService.getAcceptedFriendsRequests({ _id: req.user._id })).map((v: IBefriendRequest) =>
 		v.from === req.user._id ? v.to.toString() : v.from.toString()
 	);
 
 	let privateFilter: IObject = {
 		display: 'friends',
-		author: { $in: [...friends, req.user._id] },
+		author: { $in: [...friends, req.user._id] }
 	};
 
 	let publicFilter: IObject = {
-		display: 'all',
+		display: 'all'
 	};
 
 	let eventFilter: IObject = {};
@@ -50,7 +48,7 @@ const getPosts = async (req: Request) => {
 	if (sports) {
 		(eventFilter.event = { $exists: true }),
 			(eventFilter.eventType = {
-				$in: typeof sports === 'string' ? sports.split(',') : sports,
+				$in: typeof sports === 'string' ? sports.split(',') : sports
 			});
 	}
 
@@ -59,20 +57,18 @@ const getPosts = async (req: Request) => {
 		limit: +limit,
 		filter: {
 			...(userId && { author: userId }),
-			$and: [{ $or: [privateFilter, publicFilter] }, eventFilter],
+			$and: [{ $or: [privateFilter, publicFilter] }, eventFilter]
 		},
 		select: '-__v -updated_at',
 		populate: { author: true, comments: true, event: true },
-		sort: { created_at: -1 },
+		sort: { created_at: -1 }
 	});
 
 	return { data: posts };
 };
 
 const getUsersPosts = async (req: Request) => {
-	let friends = (
-		await FriendsDBService.getAcceptedFriendsRequests({ _id: req.user._id })
-	).map((v: IBefriendRequest) =>
+	let friends = (await FriendsDBService.getAcceptedFriendsRequests({ _id: req.user._id })).map((v: IBefriendRequest) =>
 		v.from === req.user._id ? v.to.toString() : v.from.toString()
 	);
 	const { offset, limit } = req.query;
@@ -81,16 +77,16 @@ const getUsersPosts = async (req: Request) => {
 		$or: [
 			{
 				display: 'all',
-				author: req.params.id,
+				author: req.params.id
 			},
-			{ sharedBy: req.params.id },
-		],
+			{ sharedBy: req.params.id }
+		]
 	};
 
 	if (friends.includes(req.user._id.toString())) {
 		filter.$or.push({
 			display: 'friends',
-			author: req.params.id,
+			author: req.params.id
 		});
 	}
 
@@ -100,7 +96,7 @@ const getUsersPosts = async (req: Request) => {
 		filter,
 		select: '-__v -updated_at',
 		populate: { author: true, comments: true, event: true },
-		sort: { created_at: -1 },
+		sort: { created_at: -1 }
 	});
 
 	return { data: posts };
@@ -109,7 +105,7 @@ const getUsersPosts = async (req: Request) => {
 const getPost = async (req: Request) => {
 	let post = await PostsDBService.getPost(
 		{
-			_id: req.params.id,
+			_id: req.params.id
 		},
 		{
 			select: '-__v -updated_at',
@@ -117,8 +113,8 @@ const getPost = async (req: Request) => {
 				author: true,
 				comments: true,
 				event: true,
-				populateEventUsers: true,
-			},
+				populateEventUsers: true
+			}
 		}
 	);
 
@@ -126,22 +122,12 @@ const getPost = async (req: Request) => {
 };
 
 const createPost = async (req: Request) => {
-	let {
-		text,
-		group,
-		display,
-		eventType,
-		limitParticipants,
-		openEvent,
-		pace,
-		startDate,
-		address,
-		coordinates,
-	} = req.body;
+	let { text, group, display, eventType, limitParticipants, openEvent, pace, startDate, address, coordinates } =
+		req.body;
 	let postData: IPost = {
 		author: req.user._id,
 		display,
-		text,
+		text
 	};
 
 	if (req.file) {
@@ -150,37 +136,27 @@ const createPost = async (req: Request) => {
 
 	if (group) postData.group = group;
 
-	if (
-		startDate &&
-		eventType &&
-		limitParticipants &&
-		openEvent !== undefined &&
-		pace
-	) {
-		try {
-			let eventDoc = await EventsDBService.createEvent({
-				participants: [req.user._id],
-				eventType,
-				limitParticipants,
-				openEvent,
-				pace,
-				startDate,
-				address,
-				coordinates: {
-					type: 'Point',
-					coordinates,
-				},
-			});
-			await PostsDBService.createPost({
-				...postData,
-				eventType,
-				event: eventDoc._id,
-			});
+	if (startDate && eventType && limitParticipants && openEvent !== undefined && pace) {
+		let eventDoc = await EventsDBService.createEvent({
+			participants: [req.user._id],
+			eventType,
+			limitParticipants,
+			openEvent,
+			pace,
+			startDate,
+			address,
+			coordinates: {
+				type: 'Point',
+				coordinates
+			}
+		});
+		await PostsDBService.createPost({
+			...postData,
+			eventType,
+			event: eventDoc._id
+		});
 
-			return;
-		} catch (error) {
-			return { errors: [{ msg: error?.message }] };
-		}
+		return;
 	} else {
 		await PostsDBService.createPost(postData);
 	}
@@ -195,7 +171,7 @@ const updatePost = async (req: Request) => {
 	return {
 		data: await PostsDBService.getPost(
 			{
-				_id: req.params.id,
+				_id: req.params.id
 			},
 			{
 				select: '-__v -updated_at',
@@ -203,18 +179,17 @@ const updatePost = async (req: Request) => {
 					author: true,
 					comments: true,
 					event: true,
-					populateEventUsers: true,
-				},
+					populateEventUsers: true
+				}
 			}
-		),
+		)
 	};
 };
 
 const deletePost = async (req: Request) => {
 	let post = await PostsDBService.getPost({ _id: req.params.id });
 	if (post.event) await EventsDBService.deleteEvent(post.event);
-	if (post.comments.length)
-		await CommentsDBService.deletePostsComments(post._id);
+	if (post.comments.length) await CommentsDBService.deletePostsComments(post._id);
 	await PostsDBService.deletePost(req.params.id);
 
 	return { msg: 'Removed post' };
@@ -247,5 +222,5 @@ export default {
 	unsharePost,
 	likePost,
 	dislikePost,
-	getStatistics,
+	getStatistics
 };

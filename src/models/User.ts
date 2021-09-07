@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-export interface IUser extends mongoose.Document {
+export interface IUser {
   name: string;
   lastname: string;
   birthday?: Date;
