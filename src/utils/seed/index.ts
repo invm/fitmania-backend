@@ -35,7 +35,7 @@ const CommentsCronJob = new CronJob(
 );
 
 const GroupsCronJob = new CronJob(
-	'*/10 * * * * *',
+	'0 0 */3 * * *',
 	function () {
 		populateGroups(1);
 	},
