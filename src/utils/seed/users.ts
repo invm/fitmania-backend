@@ -94,7 +94,7 @@ export const populateUsers = async (number: number) => {
 	let createdUsers = 0;
 	while (createdUsers < number) {
 		// get the next user, check if exists, in not create the user, increment and continue
-		let genders = ['female', 'male'];
+		let genders = ['male','female'];
 		let gender = Math.floor(Math.random() * 2);
 		let name = faker.name.firstName(gender);
 		let lastname = faker.name.firstName();
